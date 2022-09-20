@@ -42,3 +42,19 @@ Pontential Book Sharing Rules:
 		npm run start
 
 	The application should start on `http://localhost:8080`. Hit `http://localhost:8080/<your_name>` for a greeting!!:boom: 
+
+9. Install `dotenv` to read configurations from an environment file:
+
+		npm install dotenv
+	
+10. Install the dependency for [**Supabase**](https://supabase.com/) (an amazing realtime and managed PostgreSQL service):
+
+		npm install @supabase/supabase-js@rc
+
+	Also, create an account using your Github (because we will use `OAuth` to establish connection with the database. Once the account has been created, collect the `annon_key` and project `URL`.
+
+11. Create a `.env` file at the root level of the project to keep the secret credentials and put your Supabase `URL` and `annon_key` collected in previous step and place it in the `.env` file:
+
+		SUPABASE_URL="<your_project_url>"
+	
+		SUPABASE_ANON_KEY="<your_annon_key>"
