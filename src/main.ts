@@ -43,13 +43,13 @@ class ApplicationMain{
         this.app.get("/:id", this.validateID(), async (req: Request<{ id: number}>, response)=>{
 
             // select username from Test where id=:id
-            const data = await supabase.from('Test')
+            const result = await supabase.from('User')
             .select('username')
             .eq('id', req.params.id)
             .single()
 
             
-            response.send(data)
+            response.send(result.data)
         })
         
         this.app.listen( this.port, ()=>{
