@@ -58,3 +58,11 @@ Pontential Book Sharing Rules:
 		SUPABASE_URL="<your_project_url>"
 	
 		SUPABASE_ANON_KEY="<your_annon_key>"
+
+12. Dependency for logger:
+	
+		npm i logging
+
+13. Install `typedi` for dependency injection:
+
+		npm install typedi reflect-metadata
