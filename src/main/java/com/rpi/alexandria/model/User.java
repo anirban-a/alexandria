@@ -4,9 +4,7 @@ import com.azure.spring.data.cosmos.core.mapping.Container;
 import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 
 @Container(containerName = "user")
@@ -24,5 +22,11 @@ public class User {
 	private String lastName;
 
 	private String address;
+
+	private String primaryEmail;
+
+	private String secondaryEmail;
+
+	private String university;
 
 }
