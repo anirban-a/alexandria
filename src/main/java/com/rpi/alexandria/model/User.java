@@ -5,20 +5,22 @@ import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 
 @Container(containerName = "user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class User {
 
 	@Id
+	@PartitionKey
 	private String username;
 
 	private String firstName;
 
-	@PartitionKey
 	private String lastName;
 
 	private String address;
@@ -27,6 +29,8 @@ public class User {
 
 	private String secondaryEmail;
 
-	private String university;
+	private University university;
+
+	private String password;
 
 }
