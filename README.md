@@ -11,4 +11,18 @@
  
 5. Build the project: `mvn clean install`
 
-Note: Always run `mvn spring-javaformat:apply` to format code across codebase and to keep all formatting consistent.
+6. Create a file named `application-local.yml`:
+```
+spring:
+    cloud:
+        azure:
+            cosmos:
+                endpoint: https://csci-4440-sdd.documents.azure.com:443/
+                key: 
+                database:
+                populate-query-metrics: true
+```
+
+7. Set application run configuration to `local` using the following flag: `spring.profiles.active=local`. 
+
+**Note**: Always run `mvn spring-javaformat:apply` to format code across codebase and to keep all formatting consistent.
