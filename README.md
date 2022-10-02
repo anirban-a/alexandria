@@ -24,5 +24,10 @@ spring:
 ```
 
 7. Set application run configuration to `local` using the following flag: `spring.profiles.active=local`. 
+8. Front-end local build: 
+```
+cd book-exchange-website
+npm start
+```
 
 **Note**: Always run `mvn spring-javaformat:apply` to format code across codebase and to keep all formatting consistent.
