@@ -24,7 +24,8 @@ spring:
 ```
 
 7. Set application run configuration to `local` using the following flag: `spring.profiles.active=local`. 
-8. Front-end local build: 
+8. Install a recent version of Node.js from [here](https://nodejs.org/en/download/).
+9. Front-end local build: 
 ```
 cd book-exchange-website
 npm start
