@@ -27,7 +27,7 @@ spring:
 8. Install a recent version of Node.js from [here](https://nodejs.org/en/download/).
 9. Front-end local build: 
 ```
-cd book-exchange-website
+cd alexandria-ui
 npm start
 ```
 
