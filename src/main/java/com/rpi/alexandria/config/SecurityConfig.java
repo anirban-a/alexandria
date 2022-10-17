@@ -1,88 +1,91 @@
 package com.rpi.alexandria.config;
 
-import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.repository.UserRepository;
+import com.rpi.alexandria.service.UserService;
+import com.rpi.alexandria.service.security.JwtTokenFilter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
-import java.util.Collection;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
+@AllArgsConstructor
 @Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserRepository userRepository;
+    private final JwtTokenFilter jwtTokenFilter;
 
-    @Autowired
-    public SecurityConfig(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserService userService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http = http.cors().and().csrf().disable();
 
+        http = http
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
+
+        // Set unauthorized requests exception handler
+        http = http
+                .exceptionHandling()
+                .authenticationEntryPoint(
+                        (request, response, ex) -> {
+                            response.sendError(
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    ex.getMessage()
+                            );
+                        }
+                )
+                .and();
+
+        http.authorizeHttpRequests()
+                .antMatchers("/api/login").permitAll()
+                .antMatchers("/api/signup").permitAll()
+                .anyRequest().authenticated();
+
+        // Add JWT token filter
+        http.addFilterBefore(
+                jwtTokenFilter,
+                UsernamePasswordAuthenticationFilter.class
+        );
+
+    }
+
+    // Used by spring security if CORS is enabled.
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/", config);
+        return new CorsFilter(source);
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(this::getUserDetails);
+        authenticationManagerBuilder.userDetailsService(userService::loadUserByUsername);
     }
 
-    private UserDetails getUserDetails(String username) {
-        User user = userRepository.findById(username).orElseThrow(
-                () -> new UsernameNotFoundException(String.format("User: %s not found", username)));
-        return toUserDetails(user);
+    @Override @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
-    private UserDetails toUserDetails(User user) {
-        return new UserDetails() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                GrantedAuthority userAuthority = new GrantedAuthority() {
-                    @Override
-                    public String getAuthority() {
-                        return "user";
-                    }
-                };
-                return List.of(userAuthority);
-            }
 
-            @Override
-            public String getPassword() {
-                return user.getPassword();
-            }
-
-            @Override
-            public String getUsername() {
-                return user.getUsername();
-            }
-
-            @Override
-            public boolean isAccountNonExpired() {
-                return true;
-            }
-
-            @Override
-            public boolean isAccountNonLocked() {
-                return false;
-            }
-
-            @Override
-            public boolean isCredentialsNonExpired() {
-                return false;
-            }
-
-            @Override
-            public boolean isEnabled() {
-                return true;
-            }
-        };
-    }
 }
