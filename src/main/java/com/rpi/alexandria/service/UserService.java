@@ -21,79 +21,89 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class UserService implements UserDetailsService {
-    public static final String AUTHORITY_USER = "user";
-    UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
 
-    public void createUser(final User user) {
-        String password = user.getPassword();
-        user.setPassword(passwordEncoder.encode(password));
-        userRepository.save(user);
-        log.info("User saved into DB");
-    }
+	public static final String AUTHORITY_USER = "user";
 
-    public boolean isValidUser(final User user) {
-        UserDetails userDetails = loadUserByUsername(user.getUsername());
-        return passwordEncoder.matches(user.getPassword(), userDetails.getPassword());
-    }
+	UserRepository userRepository;
 
-    public boolean isValidUser(final String username, String password) {
-        UserDetails userDetails = loadUserByUsername(username);
-        return passwordEncoder.matches(password, userDetails.getPassword());
-    }
+	PasswordEncoder passwordEncoder;
 
-    public User getUser(String username){
-        return userRepository.findById(username).orElseThrow(
-                () -> new UsernameNotFoundException(String.format("User: %s not found", username)));
-    }
-    @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User user = getUser(username);
-        return toUserDetails(user);
-    }
+	public void createUser(final User user) {
+		String password = user.getPassword();
+		user.setIsAccountActive(true);
+		user.setIsVerified(false);
+		// user.setVerified(false); // by-default it should be false. It should be true if
+		// the email-id has been verified.
+		// user.setAccountActive(true);
+		user.setPassword(passwordEncoder.encode(password));
+		userRepository.save(user);
+		log.info("User saved into DB");
+	}
 
-    private UserDetails toUserDetails(User user) {
-        return new UserDetails() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                GrantedAuthority userAuthority = new GrantedAuthority() {
-                    @Override
-                    public String getAuthority() {
-                        return AUTHORITY_USER;
-                    }
-                };
-                return List.of(userAuthority);
-            }
+	public boolean isValidUser(final User user) {
+		UserDetails userDetails = loadUserByUsername(user.getUsername());
+		return passwordEncoder.matches(user.getPassword(), userDetails.getPassword()) && userDetails.isEnabled();
+	}
 
-            @Override
-            public String getPassword() {
-                return user.getPassword();
-            }
+	public boolean isValidUser(final String username, String password) {
+		UserDetails userDetails = loadUserByUsername(username);
+		return passwordEncoder.matches(password, userDetails.getPassword()) && userDetails.isEnabled();
+	}
 
-            @Override
-            public String getUsername() {
-                return user.getUsername();
-            }
+	public User getUser(String username) {
+		return userRepository.findById(username)
+				.orElseThrow(() -> new UsernameNotFoundException(String.format("User: %s not found", username)));
+	}
 
-            @Override
-            public boolean isAccountNonExpired() {
-                return true;
-            }
+	@Override
+	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+		final User user = getUser(username);
+		return toUserDetails(user);
+	}
 
-            @Override
-            public boolean isAccountNonLocked() {
-                return false;
-            }
+	private UserDetails toUserDetails(User user) {
+		return new UserDetails() {
+			@Override
+			public Collection<? extends GrantedAuthority> getAuthorities() {
+				GrantedAuthority userAuthority = new GrantedAuthority() {
+					@Override
+					public String getAuthority() {
+						return AUTHORITY_USER;
+					}
+				};
+				return List.of(userAuthority);
+			}
 
-            @Override
-            public boolean isCredentialsNonExpired() {
-                return false;
-            }
+			@Override
+			public String getPassword() {
+				return user.getPassword();
+			}
 
-            @Override
-            public boolean isEnabled() {
-                return true;
-            }
-        };
-    }
+			@Override
+			public String getUsername() {
+				return user.getUsername();
+			}
+
+			@Override
+			public boolean isAccountNonExpired() {
+				return user.getIsAccountActive();
+			}
+
+			@Override
+			public boolean isAccountNonLocked() {
+				return user.getIsVerified();
+			}
+
+			@Override
+			public boolean isCredentialsNonExpired() {
+				return isAccountNonExpired();
+			}
+
+			@Override
+			public boolean isEnabled() {
+				return isAccountNonExpired() && isAccountNonLocked();
+			}
+		};
+	}
+
 }

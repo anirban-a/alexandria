@@ -24,68 +24,54 @@ import javax.servlet.http.HttpServletResponse;
 @AllArgsConstructor
 @Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final UserRepository userRepository;
-    private final JwtTokenFilter jwtTokenFilter;
 
-    private final UserService userService;
+	private final UserRepository userRepository;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http = http.cors().and().csrf().disable();
+	private final JwtTokenFilter jwtTokenFilter;
 
-        http = http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
+	private final UserService userService;
 
-        // Set unauthorized requests exception handler
-        http = http
-                .exceptionHandling()
-                .authenticationEntryPoint(
-                        (request, response, ex) -> {
-                            response.sendError(
-                                    HttpServletResponse.SC_UNAUTHORIZED,
-                                    ex.getMessage()
-                            );
-                        }
-                )
-                .and();
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http = http.cors().and().csrf().disable();
 
-        http.authorizeHttpRequests()
-                .antMatchers("/api/login").permitAll()
-                .antMatchers("/api/signup").permitAll()
-                .anyRequest().authenticated();
+		http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
 
-        // Add JWT token filter
-        http.addFilterBefore(
-                jwtTokenFilter,
-                UsernamePasswordAuthenticationFilter.class
-        );
+		// Set unauthorized requests exception handler
+		http = http.exceptionHandling().authenticationEntryPoint((request, response, ex) -> {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+		}).and();
 
-    }
+		http.authorizeHttpRequests().antMatchers("/api/login").permitAll().antMatchers("/api/signup").permitAll()
+				.anyRequest().authenticated();
 
-    // Used by spring security if CORS is enabled.
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/", config);
-        return new CorsFilter(source);
-    }
+		// Add JWT token filter
+		http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(userService::loadUserByUsername);
-    }
+	}
 
-    @Override @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+	// Used by spring security if CORS is enabled.
+	@Bean
+	public CorsFilter corsFilter() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.addAllowedOrigin("*");
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("*");
+		source.registerCorsConfiguration("/", config);
+		return new CorsFilter(source);
+	}
 
+	@Override
+	protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+		authenticationManagerBuilder.userDetailsService(userService::loadUserByUsername);
+	}
+
+	@Override
+	@Bean
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
 
 }

@@ -33,4 +33,8 @@ public class User {
 
 	private String password;
 
+	private Boolean isVerified;
+
+	private Boolean isAccountActive;
+
 }
