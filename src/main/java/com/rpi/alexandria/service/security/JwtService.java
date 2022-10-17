@@ -44,7 +44,6 @@ public class JwtService {
                 .setIssuedAt(Date.from(now))
                 .signWith(secretKey)
                 .setExpiration(Date.from(now.plus(5L, ChronoUnit.DAYS)))
-//                .signWith(signatureAlgorithm, secretKey)
                 .compact();
     }
 
