@@ -24,7 +24,7 @@ import java.util.Base64;
 public class ApplicationController {
 
     UserService userService;
-	JwtService jwtService;
+    JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     @GetMapping("/login")
@@ -32,23 +32,25 @@ public class ApplicationController {
         log.info("Received login request..");
         if (!StringUtils.isEmpty(authHeader)) {
             log.info(authHeader);
-			String[]tokens = authHeader.split(" ");
-			if(StringUtils.equals(tokens[0], "Basic")){
+            String[] tokens = authHeader.split(" ");
+            if (StringUtils.equals(tokens[0], "Basic")) {
 
-				String decodedAuthHeader = new String(Base64.getDecoder().decode(tokens[1]));
+                String decodedAuthHeader = new String(Base64.getDecoder().decode(tokens[1]));
                 log.info("Decoded auth header: {}", decodedAuthHeader);
-				String[] credentials = decodedAuthHeader.split(":");
-				String username = credentials[0];
-				String password = credentials[1];
-                if(!userService.isValidUser(username, password)){
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                String[] credentials = decodedAuthHeader.split(":");
+                String username = credentials[0];
+                String password = credentials[1];
+                if (userService.isValidUser(username, password)) {
+                    String jwt = jwtService.getJwt(userService.getUser(username));
+                    return ResponseEntity.ok(jwt);
                 }
-                String jwt = jwtService.getJwt(userService.getUser(username));
-                return ResponseEntity.ok(jwt);
-			}
-			if(StringUtils.equals(tokens[0], "Bearer")){
-
-			}
+            }
+            if (StringUtils.equals(tokens[0], "Bearer")) {
+                String jwt = new String(Base64.getDecoder().decode(tokens[1]));
+                if (jwtService.validate(jwt)) {
+                    return ResponseEntity.ok().build();
+                }
+            }
 
 
         }
@@ -60,5 +62,10 @@ public class ApplicationController {
         log.info("Received request..");
         userService.createUser(user);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<String> home(){
+        return ResponseEntity.ok("Home page");
     }
 }

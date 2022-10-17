@@ -42,13 +42,20 @@ public class JwtService {
                 .setSubject(user.getUsername())
                 .setId(UUID.randomUUID().toString())
                 .setIssuedAt(Date.from(now))
+                .signWith(secretKey)
                 .setExpiration(Date.from(now.plus(5L, ChronoUnit.DAYS)))
-                .signWith(signatureAlgorithm, secretKey)
+//                .signWith(signatureAlgorithm, secretKey)
                 .compact();
     }
 
     private Jws<Claims> getClaims(String jwt){
-        return Jwts.parser().parseClaimsJws(jwt);
+        Key secretKey = new SecretKeySpec(key.getBytes(),
+                signatureAlgorithm.getJcaName());
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(jwt);
     }
 
     public String getUsername(String jwt){
