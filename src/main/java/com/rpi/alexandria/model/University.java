@@ -11,16 +11,16 @@ import java.util.List;
 @Container(containerName = "university")
 public class University {
 
-    String id;
+	String id;
 
-    String name;
+	String name;
 
-    List<String> domains;
+	List<String> domains;
 
-    String country;
+	String country;
 
-    public String computeId() {
-        return String.join("_", name.toLowerCase().split(" "));
-    }
+	public String computeId() {
+		return String.join("_", name.toLowerCase().split(" "));
+	}
 
 }
