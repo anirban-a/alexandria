@@ -1,5 +1,8 @@
 package com.rpi.alexandria.controller;
 
+import com.rpi.alexandria.controller.response.AppResponse;
+import com.rpi.alexandria.controller.response.JWTResponse;
+import com.rpi.alexandria.exception.UserAlreadyExistsException;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.service.UserService;
 import com.rpi.alexandria.service.security.JwtService;
@@ -14,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.Base64;
 
 @RestController
@@ -59,10 +63,12 @@ public class ApplicationController {
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<String> signup(@RequestBody User user) {
+	public ResponseEntity<AppResponse> signup(@RequestBody User user) throws UserAlreadyExistsException {
 		log.info("Received request..");
 		userService.createUser(user);
-		return ResponseEntity.ok().build();
+		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+				.message("User created successfully").build();
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
 	@GetMapping("/home")

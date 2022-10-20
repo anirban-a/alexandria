@@ -1,5 +1,7 @@
 package com.rpi.alexandria.service;
 
+import com.azure.cosmos.models.PartitionKey;
+import com.rpi.alexandria.exception.UserAlreadyExistsException;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.repository.UserRepository;
 import com.rpi.alexandria.service.security.UserDetailsService;
@@ -28,7 +30,11 @@ public class UserService implements UserDetailsService {
 
 	PasswordEncoder passwordEncoder;
 
-	public void createUser(final User user) {
+	public void createUser(final User user) throws UserAlreadyExistsException {
+		if (userRepository.findById(user.getUsername(), new PartitionKey(user.getUsername())).isPresent()) {
+			throw new UserAlreadyExistsException(
+					String.format("A user by the username %s already exists", user.getUsername()));
+		}
 		String password = user.getPassword();
 		user.setIsAccountActive(true);
 		user.setIsVerified(false);
