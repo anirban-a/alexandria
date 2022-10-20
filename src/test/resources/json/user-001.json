@@ -1,0 +1,18 @@
+{
+  "username": "johhny125",
+  "firstName": "Johnny",
+  "lastName": "Doe",
+  "address": "Albany, NY",
+  "primaryEmail": "johnny@gmail.com",
+  "university": {
+    "id": "1231299",
+    "name": "Rensselaer Polytechnic Institute",
+    "domains": [
+      "rpi.edu"
+    ],
+    "country": "USA"
+  },
+  "password": "jo_doe@123#",
+  "isVerified": true,
+  "isAccountActive": false
+}

@@ -1,5 +1,6 @@
 package com.rpi.alexandria.service;
 
+import com.azure.cosmos.models.PartitionKey;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.repository.UserRepository;
 import com.rpi.alexandria.service.security.UserDetailsService;
@@ -34,7 +35,6 @@ public class UserService implements UserDetailsService {
 		user.setIsVerified(false);
 		// user.setVerified(false); // by-default it should be false. It should be true if
 		// the email-id has been verified.
-		// user.setAccountActive(true);
 		user.setPassword(passwordEncoder.encode(password));
 		userRepository.save(user);
 		log.info("User saved into DB");
@@ -51,7 +51,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	public User getUser(String username) {
-		return userRepository.findById(username)
+		return userRepository.findById(username, new PartitionKey(username))
 				.orElseThrow(() -> new UsernameNotFoundException(String.format("User: %s not found", username)));
 	}
 
