@@ -6,6 +6,7 @@
   "primaryEmail": "johnny@gmail.com",
   "university": {
     "id": "1231299",
+    "name": "Rensselaer Polytechnic Institute",
     "domains": [
       "rpi.edu"
     ],

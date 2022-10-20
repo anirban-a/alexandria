@@ -14,14 +14,19 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserServiceTest {
@@ -40,10 +45,17 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void testContextLoads() throws JSONException, IOException {
+	void testUserLoadByUsername() throws JSONException, IOException {
 
 		User user = objectMapper.readValue(getJson("json/user-001.json"), User.class);
-		assertEquals("johhny125", user.getUsername());
+		when(userRepository.findById(anyString(), any())).thenReturn(Optional.of(user));
+
+		UserDetails actualUserDetails = userService.loadUserByUsername("abc");
+
+		assertEquals(user.getUsername(), actualUserDetails.getUsername());
+		assertFalse(actualUserDetails.isEnabled());
+		assertNotNull(user.getUniversity());
+		assertEquals("Rensselaer Polytechnic Institute", user.getUniversity().getName());
 	}
 
 	private String getJson(String filePath) throws IOException, JSONException {
