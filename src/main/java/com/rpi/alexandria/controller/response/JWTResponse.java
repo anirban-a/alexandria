@@ -1,4 +1,4 @@
-package com.rpi.alexandria.controller;
+package com.rpi.alexandria.controller.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
