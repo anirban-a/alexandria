@@ -4,6 +4,7 @@ package com.rpi.alexandria.controller;
 import com.rpi.alexandria.service.email.EmailDetails;
 import com.rpi.alexandria.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,13 +17,12 @@ public class EmailController {
 
 
     @PostMapping("/sendMail")
-    public String
-    sendMail(@RequestBody EmailDetails details)
+    public ResponseEntity<String> sendMail(@RequestBody EmailDetails details)
     {
         String status
                 = emailService.sendSimpleEmail(details);
 
-        return status;
+        return ResponseEntity.ok(String.format("Status: %s", status));
     }
 
 
