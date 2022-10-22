@@ -1,18 +1,16 @@
 package com.rpi.alexandria.config;
-package com.SpringBootEmail.Entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-
+@Configuration
 public class EmailConfig {
-    private String recipient;
-    private String msgBody;
-    private String subject;
-    private String attachment;
+
+    @Bean
+    public JavaMailSender javaMailSender() {
+        return new JavaMailSenderImpl();
+    }
 }
