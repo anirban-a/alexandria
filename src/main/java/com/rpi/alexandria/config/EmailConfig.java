@@ -20,7 +20,7 @@ public class EmailConfig {
 
         javaMailSender.setJavaMailProperties(getMailProperties());
         javaMailSender.setUsername("noreply.alexandriaemail@gmail.com");
-        javaMailSender.setPassword("rwiywnifjxtenpau");
+        javaMailSender.setPassword("password");
 
         return javaMailSender;
     }
