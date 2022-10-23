@@ -19,7 +19,7 @@ public class EmailService{
     @Autowired private JavaMailSender mailSender;
 
     //@Value("${username:noreply.alexandriaemail@gmail.com}") private String sender;
-    private String sender = "noreply.alexandriaemail@gmail.com";
+    private String sender = "email";
 
     public String sendSimpleEmail(Email details)
     {

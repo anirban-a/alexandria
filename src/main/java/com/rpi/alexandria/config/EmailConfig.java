@@ -19,7 +19,7 @@ public class EmailConfig {
         javaMailSender.setPort(587);
 
         javaMailSender.setJavaMailProperties(getMailProperties());
-        javaMailSender.setUsername("noreply.alexandriaemail@gmail.com");
+        javaMailSender.setUsername("email");
         javaMailSender.setPassword("password");
 
         return javaMailSender;
