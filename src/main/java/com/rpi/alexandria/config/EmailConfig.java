@@ -13,14 +13,17 @@ public class EmailConfig {
 
     @Bean
     public JavaMailSender javaMailSender() {
+        return new JavaMailSenderImpl();
+    }
+        /*
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
         javaMailSender.setHost("smtp.gmail.com");
         javaMailSender.setPort(587);
 
         javaMailSender.setJavaMailProperties(getMailProperties());
-        javaMailSender.setUsername("email");
-        javaMailSender.setPassword("password");
+        javaMailSender.setUsername("noreply.alexandriaemail@gmail.com");
+        javaMailSender.setPassword("xcgzdhrejcmddgcb");
 
         return javaMailSender;
     }
@@ -35,4 +38,5 @@ public class EmailConfig {
         properties.setProperty("mail.test-connection","true");
         return properties;
     }
+    */
 }
