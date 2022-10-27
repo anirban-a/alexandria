@@ -18,19 +18,12 @@ import java.util.Properties;
 @Service
 @Slf4j
 public class EmailService{
-
-    @Autowired private JavaMailSender mailSender;
-
-    //@Value("${username:noreply.alexandriaemail@gmail.com}") private String sender;
     private String sender = "noreply.alexandriaemail@gmail.com";
 
     public String sendSimpleEmail(Email details)
     {
         // Try block to check for exceptions
         try {
-
-
-            log.info("Test1");
             Properties prop = new Properties();
             prop.setProperty("mail.host", "smtp.gmail.com");
             prop.setProperty("mail.transport.protocol", "smtp");
@@ -43,60 +36,14 @@ public class EmailService{
             Session session = Session.getInstance(prop);
             MimeMessage message = new MimeMessage(session);
 
-
-            /*
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper;
-            helper = new MimeMessageHelper(message, true);
-            */
-
-
-            log.info("Test2");
-
-            /*
-            helper.setFrom(sender);
-            helper.setTo(details.getRecipient());
-            helper.setSubject(details.getSubject());
-            helper.setText(details.getMsgBody());
-            */
-            log.info(sender);
-            log.info(details.getRecipient());
-            log.info(details.getSubject());
-            log.info(details.getMsgBody());
-
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(sender);
             helper.setTo(details.getRecipient());
             helper.setSubject(details.getSubject());
             helper.setText(details.getMsgBody());
 
-            // Creating a simple mail message
-            /*
-            SimpleMailMessage mailMessage
-                    = new SimpleMailMessage();
-
-            // Setting up necessary details
-
-            log.info(sender);
-            log.info(details.getRecipient());
-            log.info(details.getSubject());
-            log.info(details.getMsgBody());
-
-
-
-            mailMessage.setFrom(sender);
-            mailMessage.setTo(details.getRecipient());
-            mailMessage.setText(details.getMsgBody());
-            mailMessage.setSubject(details.getSubject());
-            */
-
-            log.info("Test3");
-
             // Sending the mail
-            //mailSender.send(mailMessage);
-            //mailSender.send(message);
-
-            Transport.send(message, sender, "xcgzdhrejcmddgcb");
+            Transport.send(message, sender, "password");
             return "Mail Sent Successfully...";
         }
 
