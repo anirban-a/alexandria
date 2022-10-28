@@ -26,3 +26,7 @@ spring:
 7. Set application run configuration to `local` using the following flag: `spring.profiles.active=local`. 
 
 **Note**: Always run `mvn spring-javaformat:apply` to format code across codebase and to keep all formatting consistent.
+
+To run from the terminal:
+
+```mvn spring-boot:run -Dspring-boot.run.profiles=local```

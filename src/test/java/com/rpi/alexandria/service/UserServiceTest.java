@@ -2,6 +2,7 @@ package com.rpi.alexandria.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rpi.alexandria.model.User;
+import com.rpi.alexandria.repository.UniversityRepository;
 import com.rpi.alexandria.repository.UserRepository;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,8 +31,10 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserServiceTest {
 
-	@MockBean
+	// @MockBean
 	UserRepository userRepository = Mockito.mock(UserRepository.class);
+
+	UniversityRepository universityRepository = Mockito.mock(UniversityRepository.class);
 
 	ObjectMapper objectMapper = new ObjectMapper();
 
@@ -41,7 +43,7 @@ public class UserServiceTest {
 
 	@BeforeAll
 	void setup() {
-		userService = new UserService(userRepository, new BCryptPasswordEncoder());
+		userService = new UserService(userRepository, universityRepository, new BCryptPasswordEncoder());
 	}
 
 	@Test

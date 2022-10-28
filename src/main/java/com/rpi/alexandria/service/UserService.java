@@ -2,13 +2,17 @@ package com.rpi.alexandria.service;
 
 import com.azure.cosmos.models.PartitionKey;
 import com.rpi.alexandria.exception.UserException;
+import com.rpi.alexandria.model.University;
 import com.rpi.alexandria.model.User;
+import com.rpi.alexandria.repository.UniversityRepository;
 import com.rpi.alexandria.repository.UserRepository;
 import com.rpi.alexandria.service.security.UserDetailsService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -28,11 +33,21 @@ public class UserService implements UserDetailsService {
 
 	UserRepository userRepository;
 
+	UniversityRepository universityRepository;
+
 	PasswordEncoder passwordEncoder;
 
 	public void createUser(final User user) throws UserException {
 		if (userRepository.findById(user.getUsername(), new PartitionKey(user.getUsername())).isPresent()) {
 			throw new UserException(String.format("A user by the username %s already exists", user.getUsername()));
+		}
+		if (ObjectUtils.isEmpty(user.getUniversity()) || StringUtils.isEmpty(user.getUniversity().getName())) {
+			throw new UserException("An invalid university name provided");
+		}
+		String universityId = user.getUniversity().computeId();
+		Optional<University> universityOptional = universityRepository.findById(universityId);
+		if (universityOptional.isEmpty()) {
+			throw new UserException(String.format("University name %s provided not found", user.getUniversity()));
 		}
 		String password = user.getPassword();
 		user.setIsAccountActive(true);
@@ -40,6 +55,7 @@ public class UserService implements UserDetailsService {
 		// user.setVerified(false); // by-default it should be false. It should be true if
 		// the email-id has been verified.
 		user.setPassword(passwordEncoder.encode(password));
+		user.setUniversity(universityOptional.get());
 		userRepository.save(user);
 		log.info("User saved into DB");
 	}
