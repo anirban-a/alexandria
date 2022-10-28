@@ -20,6 +20,7 @@ public class Book {
 
 	static {
 		conditionMap.put("As New", Condition.AS_NEW);
+		conditionMap.put("Fair", Condition.FAIR);
 		conditionMap.put("Good", Condition.GOOD);
 		conditionMap.put("Nearly Damaged", Condition.NEARLY_DAMAGED);
 		conditionMap.put("Damaged", Condition.DAMAGED);
@@ -65,7 +66,7 @@ public class Book {
 
 	public enum Condition {
 
-		AS_NEW, FINE, GOOD, FAIR, NEARLY_DAMAGED, DAMAGED
+		AS_NEW, GOOD, FAIR, NEARLY_DAMAGED, DAMAGED
 
 	}
 

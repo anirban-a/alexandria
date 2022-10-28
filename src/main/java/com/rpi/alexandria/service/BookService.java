@@ -9,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -20,12 +22,20 @@ public class BookService {
 	/**
 	 * @param user
 	 * @param book
-	 * @implNote This API will add a book to a central book DB.
+	 * @implNote This API will add a book to a central book index.
 	 */
 	public void addBook(User user, Book book) {
 		book.setId(computeBookId(user, book));
 		book.setListedBy(user);
 		bookRepository.save(book);
+	}
+
+	public List<Book> findByISBN(String isbn) {
+		return bookRepository.findByIsbn(isbn);
+	}
+
+	public List<Book> findAllBooksHavingNameLike(String name) {
+		return bookRepository.findByNameContaining(name);
 	}
 
 	private String computeBookId(User user, Book book) {
