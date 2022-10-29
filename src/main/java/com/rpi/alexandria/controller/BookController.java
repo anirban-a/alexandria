@@ -36,7 +36,7 @@ public class BookController extends BaseController {
 	public ResponseEntity<AppResponse> addBook(@RequestBody BookDTO bookDTO) {
 		User user = getUser();
 		log.info("Received request to add book for user: {}", user.getUsername());
-		bookService.addBook(user, bookDTO.getMappedEntity());
+		bookService.addBook(user, bookDTO.mappedEntity());
 		AppResponse appResponse = buildAppResponse("Book added successfully", HttpStatus.OK);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}

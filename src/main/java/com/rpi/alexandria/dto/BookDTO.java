@@ -33,7 +33,7 @@ public class BookDTO implements Mappable<Book> {
 	}
 
 	@Override
-	public Book getMappedEntity() {
+	public Book mappedEntity() {
 		Book book = new Book();
 		book.setIsbn(isbn);
 		book.setName(name);
