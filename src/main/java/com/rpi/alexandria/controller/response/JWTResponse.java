@@ -14,4 +14,8 @@ public class JWTResponse {
 
 	String jwt;
 
+	String firstName;
+
+	String lastName;
+
 }

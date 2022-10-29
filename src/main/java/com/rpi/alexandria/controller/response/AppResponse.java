@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 @Data
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AppResponse {
+public class AppResponse<T> {
 
 	String message;
 
@@ -20,5 +20,7 @@ public class AppResponse {
 	HttpStatus httpStatus;
 
 	String description;
+
+	T data;
 
 }
