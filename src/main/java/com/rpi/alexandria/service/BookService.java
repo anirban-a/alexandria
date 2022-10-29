@@ -7,9 +7,18 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.MatchPhraseQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -18,6 +27,8 @@ import java.util.List;
 public class BookService {
 
 	BookRepository bookRepository;
+
+	ElasticsearchOperations elasticsearchOperations;
 
 	/**
 	 * @param user
@@ -34,8 +45,12 @@ public class BookService {
 		return bookRepository.findByIsbn(isbn);
 	}
 
-	public List<Book> findAllBooksHavingNameLike(String name) {
-		return bookRepository.findByNameContaining(name);
+	public List<Book> findAllBooksByName(String name) {
+		MatchPhraseQueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("name", name);
+		Query searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
+		SearchHits<Book> bookSearchHit = elasticsearchOperations.search(searchQuery, Book.class,
+				IndexCoordinates.of("book"));
+		return bookSearchHit.stream().map(SearchHit::getContent).collect(Collectors.toList());
 	}
 
 	private String computeBookId(User user, Book book) {

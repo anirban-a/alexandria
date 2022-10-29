@@ -10,6 +10,7 @@ import com.rpi.alexandria.service.UserService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,9 +42,30 @@ public class BookController extends BaseController {
 	}
 
 	@GetMapping
-	public ResponseEntity<AppResponse> getBook(@QueryParam("isbn") String isbn) {
-		log.info("Received request to fetch book by ISBN: {}", isbn);
-		List<Book> books = bookService.findByISBN(isbn);
+	public ResponseEntity<AppResponse<List<BookDTO>>> getBookByISBN(@QueryParam("isbn") String isbn,
+			@QueryParam("name") String name) {
+		if (StringUtils.isEmpty(isbn) && StringUtils.isEmpty(name)) {
+			AppResponse appResponse = new AppResponse("Both ISBN & book name is empty", OffsetDateTime.now(),
+					HttpStatus.BAD_REQUEST, "", null);
+			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+		}
+
+		// as of now, we will restrict to search by only name or ISBN. Both are not
+		// allowed.
+		if (!StringUtils.isEmpty(isbn) && !StringUtils.isEmpty(name)) {
+			AppResponse appResponse = new AppResponse("too many parameters given", OffsetDateTime.now(),
+					HttpStatus.BAD_REQUEST, "", null);
+			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+		}
+		List<Book> books;
+		if (!StringUtils.isEmpty(isbn)) {
+			log.info("Received request to fetch book by ISBN: {}", isbn);
+			books = bookService.findByISBN(isbn);
+		}
+		else {
+			log.info("Received request to fetch book by name: {}", name);
+			books = bookService.findAllBooksByName(name);
+		}
 		List<BookDTO> bookDTOList = books.stream().map(BookDTO::of).collect(Collectors.toList());
 		AppResponse<List<BookDTO>> appResponse = new AppResponse<>("Success", OffsetDateTime.now(), HttpStatus.OK, "",
 				bookDTOList);
