@@ -47,7 +47,7 @@ public class UserService implements UserDetailsService {
 		String universityId = user.getUniversity().computeId();
 		Optional<University> universityOptional = universityRepository.findById(universityId);
 		if (universityOptional.isEmpty()) {
-			throw new UserException(String.format("University name %s provided not found", user.getUniversity()));
+			throw new UserException(String.format("University name %s provided not found", user.getUniversity().getName()));
 		}
 		String password = user.getPassword();
 		user.setIsAccountActive(true);
