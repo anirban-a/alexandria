@@ -53,6 +53,10 @@ public class BookService {
 		return bookSearchHit.stream().map(SearchHit::getContent).collect(Collectors.toList());
 	}
 
+	public List<Book> findAllBooksForUser(String username) {
+		return bookRepository.findAllByListedByUsername(username);
+	}
+
 	private String computeBookId(User user, Book book) {
 		return String.format("%s_%s", user.hashCode(), book.getIsbn());
 	}

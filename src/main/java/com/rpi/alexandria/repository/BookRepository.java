@@ -10,8 +10,8 @@ import java.util.Optional;
 @Repository
 public interface BookRepository extends ElasticsearchRepository<Book, String> {
 
-	List<Book> findByNameContaining(String name);
-
 	List<Book> findByIsbn(String isbn);
+
+	List<Book> findAllByListedByUsername(String username);
 
 }

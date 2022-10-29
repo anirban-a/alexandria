@@ -72,4 +72,14 @@ public class BookController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
+	@GetMapping("/collection")
+	public ResponseEntity<AppResponse<List<BookDTO>>> getBooksForUser() {
+		User user = getUser();
+		List<BookDTO> bookDTOList = bookService.findAllBooksForUser(user.getUsername()).stream().map(BookDTO::of)
+				.collect(Collectors.toList());
+		AppResponse<List<BookDTO>> appResponse = new AppResponse<>("Success", OffsetDateTime.now(), HttpStatus.OK, "",
+				bookDTOList);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
+
 }
