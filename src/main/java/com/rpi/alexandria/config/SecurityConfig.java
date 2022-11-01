@@ -32,6 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		http.cors();
 		http = http.csrf().disable();
 
 		http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
@@ -51,17 +52,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	// Used by spring security if CORS is enabled.
-	@Bean
-	public CorsFilter corsFilter() {
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowCredentials(true);
-		config.addAllowedOrigin("*");
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("*");
-		source.registerCorsConfiguration("/", config);
-		return new CorsFilter(source);
-	}
+	// @Bean
+	// public CorsFilter corsFilter() {
+	// UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	// CorsConfiguration config = new CorsConfiguration();
+	// config.setAllowCredentials(true);
+	// config.addAllowedOrigin("*");
+	// config.addAllowedHeader("*");
+	// config.addAllowedMethod("*");
+	// source.registerCorsConfiguration("/", config);
+	// return new CorsFilter(source);
+	// }
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {

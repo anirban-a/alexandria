@@ -5,6 +5,8 @@ import com.rpi.alexandria.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +24,7 @@ import java.io.IOException;
 @Component
 @Slf4j
 @AllArgsConstructor
+// @Order(Ordered.HIGHEST_PRECEDENCE)
 public class JwtTokenFilter extends OncePerRequestFilter {
 
 	private final UserRepository userRepository;
