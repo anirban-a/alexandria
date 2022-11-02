@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/book")
 @Slf4j
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@CrossOrigin("http://localhost:${ui.port}")
 public class BookController extends BaseController {
 
 	BookService bookService;
