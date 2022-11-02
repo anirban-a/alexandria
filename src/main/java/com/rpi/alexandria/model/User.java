@@ -36,6 +36,8 @@ public class User {
 
 	private String password;
 
+	private String passwordResetToken;
+
 	private Boolean isVerified;
 
 	private Boolean isAccountActive;

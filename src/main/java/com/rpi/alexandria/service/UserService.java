@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @Slf4j
@@ -59,6 +60,45 @@ public class UserService implements UserDetailsService {
 		user.setUniversity(universityOptional.get());
 		userRepository.save(user);
 		log.info("User saved into DB");
+	}
+
+	// generate random n-char long alphanumeric(all caps) string
+	public String generateRandomString(int n) {
+		Random random = new Random();
+		String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		StringBuilder randomStr = new StringBuilder("");
+		for (int i = 0; i < n; i++) {
+			randomStr.append(alpha.charAt(random.nextInt(alpha.length())));
+		}
+		return randomStr.toString();
+	}
+
+	public String generateResetToken(String emailAddress) {
+		String resetToken = generateRandomString(6);
+		User user = getUser(emailAddress);
+		user.setPasswordResetToken(passwordEncoder.encode(resetToken));
+		userRepository.save(user);
+		return resetToken;
+	}
+
+	public boolean compareResetToken(String emailAddress, String resetToken) {
+		User user = getUser(emailAddress);
+		String encodedResetToken = passwordEncoder.encode(resetToken);
+		String encodedSavedToken = user.getPasswordResetToken();
+		if (encodedSavedToken.equals(encodedResetToken)) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean updatePassword(String email, String token, String newPassword) {
+		if (compareResetToken(email, token)) {
+			User user = getUser(email);
+			user.setPassword(passwordEncoder.encode(newPassword));
+			userRepository.save(user);
+			return true;
+		}
+		return false;
 	}
 
 	public boolean isValidUser(final User user) {
