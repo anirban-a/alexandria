@@ -25,6 +25,7 @@ import java.util.Base64;
 @Slf4j
 @AllArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@CrossOrigin("http://localhost:${ui.port}")
 public class ApplicationController {
 
 	UserService userService;
