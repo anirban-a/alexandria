@@ -85,16 +85,14 @@ public class UserService implements UserDetailsService {
 		User user = getUser(emailAddress);
 		String encodedResetToken = passwordEncoder.encode(resetToken);
 		String encodedSavedToken = user.getPasswordResetToken();
-		if (encodedSavedToken.equals(encodedResetToken)) {
-			return true;
-		}
-		return false;
+		return encodedSavedToken.equals(encodedResetToken);
 	}
 
 	public boolean updatePassword(String email, String token, String newPassword) {
 		if (compareResetToken(email, token)) {
 			User user = getUser(email);
 			user.setPassword(passwordEncoder.encode(newPassword));
+			user.setPasswordResetToken("");
 			userRepository.save(user);
 			return true;
 		}

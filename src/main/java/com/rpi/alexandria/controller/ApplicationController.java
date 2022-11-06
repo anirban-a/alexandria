@@ -81,7 +81,7 @@ public class ApplicationController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
-	@PostMapping("/resetToken")
+	@PostMapping("/passwordReset")
 	public ResponseEntity<AppResponse> resetToken(@RequestBody StringObj email) {
 		log.info("Received generate reset token request...");
 		String emailAddress = email.getEmail();
@@ -96,7 +96,7 @@ public class ApplicationController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
-	@PostMapping("/changePassword")
+	@PutMapping("/changePassword")
 	public ResponseEntity<AppResponse> changePassword(@RequestBody ChangePasswordObj input) {
 		log.info("Received change password request...");
 		String email = input.getEmail();
@@ -112,11 +112,6 @@ public class ApplicationController {
 					.message("did NOT change user password.").build();
 			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 		}
-	}
-
-	@GetMapping("/home")
-	public ResponseEntity<String> home() {
-		return ResponseEntity.ok("Home page");
 	}
 
 }
