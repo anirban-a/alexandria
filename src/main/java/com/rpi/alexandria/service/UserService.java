@@ -125,8 +125,9 @@ public class UserService implements UserDetailsService {
 
 		loggedInUser.removeUsernameFromUsernamesRated(usernameOther);
 
-		userRepository.save(otherUser);
-		userRepository.save(loggedInUser);
+		// userRepository.save(otherUser);
+		// userRepository.save(loggedInUser);
+		userRepository.saveAll(List.of(otherUser, loggedInUser));
 	}
 
 	private UserDetails toUserDetails(User user) {

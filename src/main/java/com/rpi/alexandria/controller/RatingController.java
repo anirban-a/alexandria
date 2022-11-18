@@ -27,7 +27,7 @@ public class RatingController extends BaseController {
 		super(userService);
 	}
 
-	@PostMapping("/add")
+	@PostMapping("/")
 	public ResponseEntity<AppResponse> addRating(@RequestBody Rating rating) {
 		log.info("Received request to add rating to user: {}", rating.getUsernameOther());
 
@@ -67,7 +67,7 @@ public class RatingController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
-	@PutMapping("/update")
+	@PutMapping("/")
 	public ResponseEntity<AppResponse> updateRating(@RequestBody Rating rating) {
 		log.info("Received request to update rating of user: {}", rating.getUsernameOther());
 
@@ -159,7 +159,7 @@ public class RatingController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
-	@DeleteMapping("/delete")
+	@DeleteMapping("/")
 	public ResponseEntity<AppResponse> deleteRating(@RequestBody Rating rating) {
 		log.info("Received request to remove rating from user: {}", rating.getUsernameOther());
 
