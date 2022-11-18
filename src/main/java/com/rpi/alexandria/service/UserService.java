@@ -2,6 +2,7 @@ package com.rpi.alexandria.service;
 
 import com.azure.cosmos.models.PartitionKey;
 import com.rpi.alexandria.exception.UserException;
+import com.rpi.alexandria.model.Rating;
 import com.rpi.alexandria.model.University;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.repository.UniversityRepository;
@@ -19,9 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -80,6 +79,54 @@ public class UserService implements UserDetailsService {
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		final User user = getUser(username);
 		return toUserDetails(user);
+	}
+
+	public boolean hasAddedRating(User loggedInUser, Rating rating) {
+		return loggedInUser.hasRated(rating.getUsernameOther());
+	}
+
+	public void addRating(User loggedInUser, Rating rating) {
+		String usernameOther = rating.getUsernameOther();
+
+		User otherUser = getUser(usernameOther);
+		otherUser.addRating(loggedInUser.getUsername(), rating.getRatingValue());
+
+		loggedInUser.addUsernameToUsernamesRated(usernameOther);
+
+		userRepository.save(otherUser);
+		userRepository.save(loggedInUser);
+	}
+
+	public void updateRating(String loggedInUserUsername, Rating rating) {
+		User otherUser = getUser(rating.getUsernameOther());
+		otherUser.updateRating(loggedInUserUsername, rating.getRatingValue());
+		userRepository.save(otherUser);
+	}
+
+	public double getAverageRating(Rating rating) {
+		User user = getUser(rating.getUsernameOther());
+		return user.getAverageRating();
+	}
+
+	public Map<String, Integer> getRatings(Rating rating) {
+		User user = getUser(rating.getUsernameOther());
+		return user.getRatings();
+	}
+
+	public Set<String> getUsernamesRated(User user) {
+		return user.getUsernamesRated();
+	}
+
+	public void deleteRating(User loggedInUser, Rating rating) {
+		String usernameOther = rating.getUsernameOther();
+
+		User otherUser = getUser(usernameOther);
+		otherUser.deleteRating(loggedInUser.getUsername());
+
+		loggedInUser.removeUsernameFromUsernamesRated(usernameOther);
+
+		userRepository.save(otherUser);
+		userRepository.save(loggedInUser);
 	}
 
 	private UserDetails toUserDetails(User user) {
