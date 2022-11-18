@@ -9,8 +9,8 @@ public class Rating {
 
 	// username of account to add rating to, get rating information from, update rating
 	// of, or delete rating from
-	String usernameOther;
+	private String usernameOther;
 
-	int ratingValue;
+	private int ratingValue;
 
 }
