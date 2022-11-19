@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class BookExchangeService implements IBookExchangeService {
     @Override
     public void createExchange(Exchange exchange) {
         exchange.computeId();
-        Exchange otherPartyExchange = exchange.getOtherPartyExchange();
+        Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
         bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
     }
 

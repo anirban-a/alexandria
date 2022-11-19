@@ -5,7 +5,6 @@ import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.Objects;
@@ -35,7 +34,7 @@ public class Exchange implements IBookExchange {
 
     Boolean completed = false;
 
-    public Exchange getOtherPartyExchange() {
+    public Exchange deriveOtherPartyExchange() {
         Exchange otherPartyExchange = new Exchange();
         if(Objects.nonNull(id)){
             otherPartyExchange.setId(id.split("_")[0]+"_"+otherPartyId);

@@ -15,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookDTO implements Mappable<Book> {
 
+	String id;
 	@NotBlank(message = "ISBN is mandatory")
 	String isbn;
 
@@ -33,7 +34,7 @@ public class BookDTO implements Mappable<Book> {
 	String owner;
 
 	public static BookDTO of(Book book) {
-		return new BookDTO(book.getIsbn(), book.getName(), book.getCondition(), book.getDescription(),
+		return new BookDTO(book.getId(), book.getIsbn(), book.getName(), book.getCondition(), book.getDescription(),
 				book.getForExchange(), book.getForGiveAway(), book.getListedBy().getUsername());
 	}
 

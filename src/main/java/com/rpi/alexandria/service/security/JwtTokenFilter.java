@@ -1,5 +1,6 @@
 package com.rpi.alexandria.service.security;
 
+import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.repository.UserRepository;
 import com.rpi.alexandria.service.UserService;
 import lombok.AllArgsConstructor;

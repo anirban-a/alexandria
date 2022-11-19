@@ -97,7 +97,7 @@ public class BookExchangeServiceTest {
         exchange.computeId();
 
 
-        Exchange otherPartyExchange = exchange.getOtherPartyExchange();
+        Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
 
         Mockito.when(bookExchangeRepository.findById(exchange.getId(), new PartitionKey(exchange.getFirstPartyId()))).thenReturn(Optional.of(exchange));
         Mockito.when(bookExchangeRepository.findById(otherPartyExchange.getId(), new PartitionKey(exchange.getOtherPartyId()))).thenReturn(Optional.of(otherPartyExchange));
