@@ -2,7 +2,7 @@ package com.rpi.alexandria.controller;
 
 import com.rpi.alexandria.controller.response.AppResponse;
 import com.rpi.alexandria.controller.response.JWTResponse;
-import com.rpi.alexandria.exception.UserException;
+import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.service.UserService;
 import com.rpi.alexandria.service.security.JwtService;
@@ -65,7 +65,7 @@ public class ApplicationController {
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<AppResponse> signup(@RequestBody User user) throws UserException {
+	public ResponseEntity<AppResponse> signup(@RequestBody User user) throws ApplicationException {
 		log.info("Received request..");
 		userService.createUser(user);
 		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)

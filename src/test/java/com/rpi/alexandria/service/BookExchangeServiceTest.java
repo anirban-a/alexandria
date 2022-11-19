@@ -1,5 +1,6 @@
 package com.rpi.alexandria.service;
 
+import com.azure.cosmos.models.PartitionKey;
 import com.rpi.alexandria.model.Exchange;
 import com.rpi.alexandria.repository.BookExchangeRepository;
 import lombok.AccessLevel;
@@ -44,6 +45,7 @@ public class BookExchangeServiceTest {
         exchange.setOtherPartyBookId(RandomStringUtils.random(10));
         exchange.setFirstPartyId(firstPartyId);
         exchange.setOtherPartyId(otherPartyId);
+//        exchange.computeId();
 
         Mockito.when(bookExchangeRepository.saveAll(Mockito.anyCollection())).thenReturn(null);
 
@@ -57,7 +59,53 @@ public class BookExchangeServiceTest {
         assertEquals(2, exchangeList.size());
 
         assertEquals(2, exchangeList.stream().map(Exchange::getId).map(Optional::ofNullable).filter(Optional::isPresent).count());
+        assertEquals(1, exchangeList.stream().map(Exchange::getId).filter(id -> id.contains(exchange.getFirstPartyId())).count());
+        assertEquals(1, exchangeList.stream().map(Exchange::getId).filter(id -> id.contains(exchange.getOtherPartyId())).count());
         assertTrue(exchangeList.stream().map(Exchange::getFirstPartyId).anyMatch(id -> id.equals(exchange.getFirstPartyId())));
         assertTrue(exchangeList.stream().map(Exchange::getOtherPartyId).anyMatch(id -> id.equals(exchange.getFirstPartyId())));
+        assertEquals(0, exchangeList.stream().filter(Exchange::getCompleted).count());
+    }
+
+    @Test
+    public void test002() {
+        Exchange exchange = new Exchange();
+        String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
+        String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
+        exchange.setId(RandomStringUtils.random(10));
+        exchange.setFirstPartyBookId(RandomStringUtils.random(10));
+        exchange.setOtherPartyBookId(RandomStringUtils.random(10));
+        exchange.setFirstPartyId(firstPartyId);
+        exchange.setOtherPartyId(otherPartyId);
+
+        Mockito.when(bookExchangeRepository.findAll(new PartitionKey(Mockito.any()))).thenReturn(List.of(exchange));
+
+        bookExchangeService.getAllExchangesByUserId(exchange.getFirstPartyId());
+
+        Mockito.verify(bookExchangeRepository, Mockito.times(1)).findAll(Mockito.any(PartitionKey.class));
+    }
+
+    //    test mark book exchange completed.
+    @Test
+    public void test003() {
+        Exchange exchange = new Exchange();
+        String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
+        String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
+        exchange.setFirstPartyBookId(RandomStringUtils.random(10));
+        exchange.setOtherPartyBookId(RandomStringUtils.random(10));
+        exchange.setFirstPartyId(firstPartyId);
+        exchange.setOtherPartyId(otherPartyId);
+        exchange.computeId();
+
+
+        Exchange otherPartyExchange = exchange.getOtherPartyExchange();
+
+        Mockito.when(bookExchangeRepository.findById(exchange.getId(), new PartitionKey(exchange.getFirstPartyId()))).thenReturn(Optional.of(exchange));
+        Mockito.when(bookExchangeRepository.findById(otherPartyExchange.getId(), new PartitionKey(exchange.getOtherPartyId()))).thenReturn(Optional.of(otherPartyExchange));
+
+        bookExchangeService.markCompleted(exchange.getId(), exchange.getFirstPartyId());
+
+        Mockito.verify(bookExchangeRepository, Mockito.times(1)).saveAll(exchangeArgumentCaptor.capture());
+        List<Exchange> exchangeList = exchangeArgumentCaptor.getValue();
+        assertEquals(2, exchangeList.stream().filter(Exchange::getCompleted).count());
     }
 }
