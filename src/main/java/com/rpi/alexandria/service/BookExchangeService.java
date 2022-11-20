@@ -21,18 +21,18 @@ public class BookExchangeService implements IBookExchangeService {
 	BookExchangeRepository bookExchangeRepository;
 
 	@Override
-	public void createTransaction(Exchange exchange) {
-		exchange.computeId();
-		Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
-		bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
+	public void createTransaction(Exchange transaction) {
+		transaction.computeId();
+		Exchange otherPartyExchange = transaction.deriveOtherPartyExchange();
+		bookExchangeRepository.saveAll(List.of(transaction, otherPartyExchange));
 	}
 
 	@Override
-	public void deleteTransaction(Exchange exchange) {
-		String otherPartyExchangeId = exchange.deriveOtherPartyExchangeId();
-		log.info("Deleting Ids: {}, {}", exchange.getId(), otherPartyExchangeId);
-		bookExchangeRepository.deleteById(exchange.getId(), new PartitionKey(exchange.getFirstPartyId()));
-		bookExchangeRepository.deleteById(otherPartyExchangeId, new PartitionKey(exchange.getOtherPartyId()));
+	public void deleteTransaction(Exchange transaction) {
+		String otherPartyExchangeId = transaction.deriveOtherPartyExchangeId();
+		log.info("Deleting Ids: {}, {}", transaction.getId(), otherPartyExchangeId);
+		bookExchangeRepository.deleteById(transaction.getId(), new PartitionKey(transaction.getFirstPartyId()));
+		bookExchangeRepository.deleteById(otherPartyExchangeId, new PartitionKey(transaction.getOtherPartyId()));
 	}
 
 

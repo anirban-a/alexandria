@@ -5,6 +5,7 @@ import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.RandomStringUtils;
 
 @Container(containerName = "donation")
 @Data
@@ -21,4 +22,8 @@ public class Donation implements IBookDonation {
 	String firstPartyBookId;
 
 	Boolean completed = false;
+
+	public void computeId() {
+		id = RandomStringUtils.random(5, false, true) + this.hashCode() + "_" + firstPartyId;
+	}
 }
