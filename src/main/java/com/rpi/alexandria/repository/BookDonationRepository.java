@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface BookDonationRepository extends CosmosRepository<Donation, String> {
-    List<Donation> findAll(PartitionKey partitionKey);
+
+	List<Donation> findAll(PartitionKey partitionKey);
+
 }

@@ -15,15 +15,17 @@ public class Donation implements IBookDonation {
 	String id;
 
 	@PartitionKey
-	String firstPartyId;	// id of the person who listed the book for donation.
+	String firstPartyId; // id of the person who listed the book for donation.
 
-	String otherPartyId;	// id of the person requesting to acquire the book listed for donation.
+	String otherPartyId; // id of the person requesting to acquire the book listed for
+							// donation.
 
-	String firstPartyBookId;	// id of the book listed for donation.
+	String firstPartyBookId; // id of the book listed for donation.
 
 	Boolean completed = false;
 
 	public void computeId() {
 		id = RandomStringUtils.random(5, false, true) + this.hashCode() + "_" + firstPartyId;
 	}
+
 }

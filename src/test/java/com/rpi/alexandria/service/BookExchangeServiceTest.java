@@ -137,18 +137,20 @@ public class BookExchangeServiceTest {
 
 		Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
 
-		Mockito.doNothing().when(bookExchangeRepository).deleteById(Mockito.anyString(), Mockito.any(PartitionKey.class));
+		Mockito.doNothing().when(bookExchangeRepository).deleteById(Mockito.anyString(),
+				Mockito.any(PartitionKey.class));
 
 		bookExchangeService.deleteTransaction(exchange);
 
-		Mockito.verify(bookExchangeRepository, Mockito.times(2))
-				.deleteById(exchangeIdArgumentCaptor.capture(), partitionKeyArgumentCaptor.capture());
+		Mockito.verify(bookExchangeRepository, Mockito.times(2)).deleteById(exchangeIdArgumentCaptor.capture(),
+				partitionKeyArgumentCaptor.capture());
 
 		List<String> deletedExchangeIds = exchangeIdArgumentCaptor.getAllValues();
 		List<PartitionKey> partitionKeys = partitionKeyArgumentCaptor.getAllValues();
 
 		assertTrue(deletedExchangeIds.stream().anyMatch(id -> id.equals(otherPartyExchange.getId())));
-		assertTrue(partitionKeys.stream().anyMatch(partitionKey -> partitionKey.equals(new PartitionKey(exchange.getOtherPartyId()))));
+		assertTrue(partitionKeys.stream()
+				.anyMatch(partitionKey -> partitionKey.equals(new PartitionKey(exchange.getOtherPartyId()))));
 	}
 
 }

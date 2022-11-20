@@ -35,7 +35,6 @@ public class BookExchangeService implements IBookExchangeService {
 		bookExchangeRepository.deleteById(otherPartyExchangeId, new PartitionKey(transaction.getOtherPartyId()));
 	}
 
-
 	@Override
 	public List<Exchange> getAllTransactionsByUserId(String userId) {
 		return bookExchangeRepository.findAll(new PartitionKey(userId));

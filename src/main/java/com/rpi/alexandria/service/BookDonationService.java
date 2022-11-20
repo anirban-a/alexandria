@@ -17,30 +17,31 @@ import java.util.List;
 @Service
 @Slf4j
 public class BookDonationService implements IBookDonationService {
-    BookDonationRepository bookDonationRepository;
 
-    @Override
-    public void createTransaction(Donation transaction) {
-        transaction.computeId();
-        bookDonationRepository.save(transaction);
-    }
+	BookDonationRepository bookDonationRepository;
 
-    @Override
-    public void deleteTransaction(Donation transaction) {
-        bookDonationRepository.deleteById(transaction.getId(), new PartitionKey(transaction.getFirstPartyId()));
-    }
+	@Override
+	public void createTransaction(Donation transaction) {
+		transaction.computeId();
+		bookDonationRepository.save(transaction);
+	}
 
-    @Override
-    public List<Donation> getAllTransactionsByUserId(String userId) {
-        return bookDonationRepository.findAll(new PartitionKey(userId));
-    }
+	@Override
+	public void deleteTransaction(Donation transaction) {
+		bookDonationRepository.deleteById(transaction.getId(), new PartitionKey(transaction.getFirstPartyId()));
+	}
 
-    @Override
-    public void markCompleted(String id, String userId) {
-        Donation donation = bookDonationRepository
-                .findById(id, new PartitionKey(userId))
-                .orElseThrow(() -> new ApplicationException(String.format("No such donation by id %s found", id)));
-        donation.setCompleted(true);
-        bookDonationRepository.save(donation);
-    }
+	@Override
+	public List<Donation> getAllTransactionsByUserId(String userId) {
+		return bookDonationRepository.findAll(new PartitionKey(userId));
+	}
+
+	@Override
+	public void markCompleted(String id, String userId) {
+		Donation donation = bookDonationRepository.findById(id, new PartitionKey(userId))
+				.orElseThrow(() -> new ApplicationException(String.format("No such donation by id %s found", id)));
+		donation.setCompleted(true);
+		bookDonationRepository.save(donation);
+	}
+
 }

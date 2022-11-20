@@ -21,45 +21,46 @@ import java.util.List;
 @CrossOrigin("http://localhost:${ui.port}")
 public class BookDonationController extends BaseController {
 
-    ITransactableBookService<Donation> bookDonationService;
+	ITransactableBookService<Donation> bookDonationService;
 
-    public BookDonationController(UserService userService, BookDonationService bookDonationService) {
-        super(userService);
-        this.bookDonationService = bookDonationService;
-    }
+	public BookDonationController(UserService userService, BookDonationService bookDonationService) {
+		super(userService);
+		this.bookDonationService = bookDonationService;
+	}
 
-    @GetMapping
-    public ResponseEntity<AppResponse<List<Donation>>> getAllDonationRequests() {
-        String username = getUser().getUsername();
-        List<Donation> bookDonationList = bookDonationService.getAllTransactionsByUserId(username);
-        AppResponse<List<Donation>> appResponse = buildAppResponse("", HttpStatus.OK);
-        appResponse.setData(bookDonationList);
-        return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-    }
+	@GetMapping
+	public ResponseEntity<AppResponse<List<Donation>>> getAllDonationRequests() {
+		String username = getUser().getUsername();
+		List<Donation> bookDonationList = bookDonationService.getAllTransactionsByUserId(username);
+		AppResponse<List<Donation>> appResponse = buildAppResponse("", HttpStatus.OK);
+		appResponse.setData(bookDonationList);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
 
-    @PostMapping
-    public ResponseEntity<AppResponse<Void>> createDonationRequest(@RequestBody Donation donation) {
-        log.info("Received book donation request");
-        bookDonationService.createTransaction(donation);
-        AppResponse<Void> appResponse = buildAppResponse("Request for book donation created successfully", HttpStatus.OK);
-        return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-    }
+	@PostMapping
+	public ResponseEntity<AppResponse<Void>> createDonationRequest(@RequestBody Donation donation) {
+		log.info("Received book donation request");
+		bookDonationService.createTransaction(donation);
+		AppResponse<Void> appResponse = buildAppResponse("Request for book donation created successfully",
+				HttpStatus.OK);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
 
-    @PostMapping("/complete/{id}")
-    public ResponseEntity<AppResponse<Void>> markComplete(@PathVariable String id) {
-        log.info("Received book exchange request");
-        String username = getUser().getUsername();
-        bookDonationService.markCompleted(id, username);
-        AppResponse<Void> appResponse = buildAppResponse("Book donation marked complete successfully", HttpStatus.OK);
-        return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-    }
+	@PostMapping("/complete/{id}")
+	public ResponseEntity<AppResponse<Void>> markComplete(@PathVariable String id) {
+		log.info("Received book exchange request");
+		String username = getUser().getUsername();
+		bookDonationService.markCompleted(id, username);
+		AppResponse<Void> appResponse = buildAppResponse("Book donation marked complete successfully", HttpStatus.OK);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
 
-    @DeleteMapping
-    public ResponseEntity<AppResponse<Void>> deleteDonation(@RequestBody Donation donation) {
-        log.info("Received book exchange delete request");
-        bookDonationService.deleteTransaction(donation);
-        AppResponse<Void> appResponse = buildAppResponse("Book donation deleted successfully", HttpStatus.OK);
-        return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-    }
+	@DeleteMapping
+	public ResponseEntity<AppResponse<Void>> deleteDonation(@RequestBody Donation donation) {
+		log.info("Received book exchange delete request");
+		bookDonationService.deleteTransaction(donation);
+		AppResponse<Void> appResponse = buildAppResponse("Book donation deleted successfully", HttpStatus.OK);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
 
 }
