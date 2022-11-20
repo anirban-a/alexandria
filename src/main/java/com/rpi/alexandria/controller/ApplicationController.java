@@ -57,7 +57,7 @@ public class ApplicationController {
                 if (userService.isValidUser(username, password)) {
                     User user = userService.getUser(username);
                     String jwt = jwtService.getJwt(user);
-                    return ResponseEntity.ok(new JWTResponse(jwt, user.getFirstName(), user.getLastName()));
+                    return ResponseEntity.ok(new JWTResponse(jwt, user.getFirstName(), user.getLastName(), user.getUsername()));
                 }
             }
             if (StringUtils.equals(tokens[0], "Bearer")) {
