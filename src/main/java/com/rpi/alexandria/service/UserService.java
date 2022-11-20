@@ -39,7 +39,8 @@ public class UserService implements UserDetailsService {
 
 	public void createUser(final User user) throws ApplicationException {
 		if (userRepository.findById(user.getUsername(), new PartitionKey(user.getUsername())).isPresent()) {
-			throw new ApplicationException(String.format("A user by the username %s already exists", user.getUsername()));
+			throw new ApplicationException(
+					String.format("A user by the username %s already exists", user.getUsername()));
 		}
 		if (ObjectUtils.isEmpty(user.getUniversity()) || StringUtils.isEmpty(user.getUniversity().getName())) {
 			throw new ApplicationException("An invalid university name provided");

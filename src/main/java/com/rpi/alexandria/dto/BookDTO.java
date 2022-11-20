@@ -16,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 public class BookDTO implements Mappable<Book> {
 
 	String id;
+
 	@NotBlank(message = "ISBN is mandatory")
 	String isbn;
 

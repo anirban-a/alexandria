@@ -23,89 +23,127 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RunWith(MockitoJUnitRunner.class)
 public class BookExchangeServiceTest {
-    @Mock
-    final BookExchangeRepository bookExchangeRepository = Mockito.mock(BookExchangeRepository.class);
-    @InjectMocks
-    IBookExchangeService bookExchangeService = new BookExchangeService(bookExchangeRepository);
-    @Captor
-    ArgumentCaptor<List<Exchange>> exchangeArgumentCaptor;
 
-    @AfterEach
-    public void setup() {
-        Mockito.reset(bookExchangeRepository);
-    }
+	@Mock
+	final BookExchangeRepository bookExchangeRepository = Mockito.mock(BookExchangeRepository.class);
 
-    //    test creation of exchange
-    @Test
-    public void test001() {
-        Exchange exchange = new Exchange();
-        String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
-        String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
-        exchange.setFirstPartyBookId(RandomStringUtils.random(10));
-        exchange.setOtherPartyBookId(RandomStringUtils.random(10));
-        exchange.setFirstPartyId(firstPartyId);
-        exchange.setOtherPartyId(otherPartyId);
-//        exchange.computeId();
+	@InjectMocks
+	IBookExchangeService bookExchangeService = new BookExchangeService(bookExchangeRepository);
 
-        Mockito.when(bookExchangeRepository.saveAll(Mockito.anyCollection())).thenReturn(null);
+	@Captor
+	ArgumentCaptor<List<Exchange>> exchangeArgumentCaptor;
 
-//        call the service
-        bookExchangeService.createExchange(exchange);
+	@Captor
+	ArgumentCaptor<List<String>> iterableExchangeIdArgumentCaptor;
 
-        Mockito.verify(bookExchangeRepository, Mockito.times(1)).saveAll(exchangeArgumentCaptor.capture());
+	@AfterEach
+	public void setup() {
+		Mockito.reset(bookExchangeRepository);
+	}
 
-        List<Exchange> exchangeList = exchangeArgumentCaptor.getValue();
+	// test creation of exchange
+	@Test
+	public void test001() {
+		Exchange exchange = new Exchange();
+		String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
+		String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
+		exchange.setFirstPartyBookId(RandomStringUtils.random(10));
+		exchange.setOtherPartyBookId(RandomStringUtils.random(10));
+		exchange.setFirstPartyId(firstPartyId);
+		exchange.setOtherPartyId(otherPartyId);
+		// exchange.computeId();
 
-        assertEquals(2, exchangeList.size());
+		Mockito.when(bookExchangeRepository.saveAll(Mockito.anyCollection())).thenReturn(null);
 
-        assertEquals(2, exchangeList.stream().map(Exchange::getId).map(Optional::ofNullable).filter(Optional::isPresent).count());
-        assertEquals(1, exchangeList.stream().map(Exchange::getId).filter(id -> id.contains(exchange.getFirstPartyId())).count());
-        assertEquals(1, exchangeList.stream().map(Exchange::getId).filter(id -> id.contains(exchange.getOtherPartyId())).count());
-        assertTrue(exchangeList.stream().map(Exchange::getFirstPartyId).anyMatch(id -> id.equals(exchange.getFirstPartyId())));
-        assertTrue(exchangeList.stream().map(Exchange::getOtherPartyId).anyMatch(id -> id.equals(exchange.getFirstPartyId())));
-        assertEquals(0, exchangeList.stream().filter(Exchange::getCompleted).count());
-    }
+		// call the service
+		bookExchangeService.createExchange(exchange);
 
-    @Test
-    public void test002() {
-        Exchange exchange = new Exchange();
-        String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
-        String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
-        exchange.setId(RandomStringUtils.random(10));
-        exchange.setFirstPartyBookId(RandomStringUtils.random(10));
-        exchange.setOtherPartyBookId(RandomStringUtils.random(10));
-        exchange.setFirstPartyId(firstPartyId);
-        exchange.setOtherPartyId(otherPartyId);
+		Mockito.verify(bookExchangeRepository, Mockito.times(1)).saveAll(exchangeArgumentCaptor.capture());
 
-        Mockito.when(bookExchangeRepository.findAll(new PartitionKey(Mockito.any()))).thenReturn(List.of(exchange));
+		List<Exchange> exchangeList = exchangeArgumentCaptor.getValue();
 
-        bookExchangeService.getAllExchangesByUserId(exchange.getFirstPartyId());
+		assertEquals(2, exchangeList.size());
 
-        Mockito.verify(bookExchangeRepository, Mockito.times(1)).findAll(Mockito.any(PartitionKey.class));
-    }
+		assertEquals(2, exchangeList.stream().map(Exchange::getId).map(Optional::ofNullable).filter(Optional::isPresent)
+				.count());
+		assertEquals(1, exchangeList.stream().map(Exchange::getId).filter(id -> id.contains(exchange.getFirstPartyId()))
+				.count());
+		assertEquals(1, exchangeList.stream().map(Exchange::getId).filter(id -> id.contains(exchange.getOtherPartyId()))
+				.count());
+		assertTrue(exchangeList.stream().map(Exchange::getFirstPartyId)
+				.anyMatch(id -> id.equals(exchange.getFirstPartyId())));
+		assertTrue(exchangeList.stream().map(Exchange::getOtherPartyId)
+				.anyMatch(id -> id.equals(exchange.getFirstPartyId())));
+		assertEquals(0, exchangeList.stream().filter(Exchange::getCompleted).count());
+	}
 
-    //    test mark book exchange completed.
-    @Test
-    public void test003() {
-        Exchange exchange = new Exchange();
-        String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
-        String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
-        exchange.setFirstPartyBookId(RandomStringUtils.random(10));
-        exchange.setOtherPartyBookId(RandomStringUtils.random(10));
-        exchange.setFirstPartyId(firstPartyId);
-        exchange.setOtherPartyId(otherPartyId);
-        exchange.computeId();
+	@Test
+	public void test002() {
+		Exchange exchange = new Exchange();
+		String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
+		String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
+		exchange.setId(RandomStringUtils.random(10));
+		exchange.setFirstPartyBookId(RandomStringUtils.random(10));
+		exchange.setOtherPartyBookId(RandomStringUtils.random(10));
+		exchange.setFirstPartyId(firstPartyId);
+		exchange.setOtherPartyId(otherPartyId);
 
+		Mockito.when(bookExchangeRepository.findAll(new PartitionKey(Mockito.any()))).thenReturn(List.of(exchange));
 
-        Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
+		bookExchangeService.getAllExchangesByUserId(exchange.getFirstPartyId());
 
-        Mockito.when(bookExchangeRepository.findById(exchange.getId(), new PartitionKey(exchange.getFirstPartyId()))).thenReturn(Optional.of(exchange));
-        Mockito.when(bookExchangeRepository.findById(otherPartyExchange.getId(), new PartitionKey(exchange.getOtherPartyId()))).thenReturn(Optional.of(otherPartyExchange));
+		Mockito.verify(bookExchangeRepository, Mockito.times(1)).findAll(Mockito.any(PartitionKey.class));
+	}
 
-        bookExchangeService.markCompleted(exchange.getId(), exchange.getFirstPartyId());
+	// test mark book exchange completed.
+	@Test
+	public void test003() {
+		Exchange exchange = new Exchange();
+		String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
+		String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
+		exchange.setFirstPartyBookId(RandomStringUtils.random(10));
+		exchange.setOtherPartyBookId(RandomStringUtils.random(10));
+		exchange.setFirstPartyId(firstPartyId);
+		exchange.setOtherPartyId(otherPartyId);
+		exchange.computeId();
 
-        Mockito.verify(bookExchangeRepository, Mockito.times(1)).saveAll(exchangeArgumentCaptor.capture());
-        List<Exchange> exchangeList = exchangeArgumentCaptor.getValue();
-        assertEquals(2, exchangeList.stream().filter(Exchange::getCompleted).count());
-    }
+		Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
+
+		Mockito.when(bookExchangeRepository.findById(exchange.getId(), new PartitionKey(exchange.getFirstPartyId())))
+				.thenReturn(Optional.of(exchange));
+		Mockito.when(bookExchangeRepository.findById(otherPartyExchange.getId(),
+				new PartitionKey(exchange.getOtherPartyId()))).thenReturn(Optional.of(otherPartyExchange));
+
+		bookExchangeService.markCompleted(exchange.getId(), exchange.getFirstPartyId());
+
+		Mockito.verify(bookExchangeRepository, Mockito.times(1)).saveAll(exchangeArgumentCaptor.capture());
+		List<Exchange> exchangeList = exchangeArgumentCaptor.getValue();
+		assertEquals(2, exchangeList.stream().filter(Exchange::getCompleted).count());
+	}
+
+	@Test
+	public void test004() {
+		Exchange exchange = new Exchange();
+		String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
+		String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5, false, true));
+		exchange.setFirstPartyBookId(RandomStringUtils.random(10));
+		exchange.setOtherPartyBookId(RandomStringUtils.random(10));
+		exchange.setFirstPartyId(firstPartyId);
+		exchange.setOtherPartyId(otherPartyId);
+		exchange.computeId();
+
+		Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
+
+		Mockito.doNothing().when(bookExchangeRepository).deleteAllById(Mockito.anyCollection());
+
+		bookExchangeService.deleteExchange(exchange);
+
+		Mockito.verify(bookExchangeRepository, Mockito.times(1))
+				.deleteAllById(iterableExchangeIdArgumentCaptor.capture());
+
+		List<String> deletedExchangeIds = iterableExchangeIdArgumentCaptor.getValue();
+
+		assertTrue(deletedExchangeIds.stream().anyMatch(id -> id.equals(otherPartyExchange.getId())));
+	}
+
 }

@@ -13,40 +13,46 @@ import java.util.Objects;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Exchange implements IBookExchange {
-    String id;
 
-    @PartitionKey
-    String firstPartyId;
+	String id;
 
-    String otherPartyId;
+	@PartitionKey
+	String firstPartyId;
 
-    String firstPartyBookId;
+	String otherPartyId;
 
-    /**
-     * @param id Id for the exchange
-     * @apiNote Do not use this. Use <code>computeId()</code> instead.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
+	String firstPartyBookId;
 
-    String otherPartyBookId;
+	/**
+	 * @param id Id for the exchange
+	 * @apiNote Do not use this. Use <code>computeId()</code> instead.
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    Boolean completed = false;
+	String otherPartyBookId;
 
-    public Exchange deriveOtherPartyExchange() {
-        Exchange otherPartyExchange = new Exchange();
-        if(Objects.nonNull(id)){
-            otherPartyExchange.setId(id.split("_")[0]+"_"+otherPartyId);
-        }
-        otherPartyExchange.setFirstPartyId(otherPartyId);
-        otherPartyExchange.setOtherPartyId(firstPartyId);
-        otherPartyExchange.setFirstPartyBookId(otherPartyBookId);
-        otherPartyExchange.setOtherPartyBookId(firstPartyBookId);
-        return otherPartyExchange;
-    }
+	Boolean completed = false;
 
-    public void computeId(){
-        id = RandomStringUtils.random(5, false, true) + this.hashCode() + "_" + firstPartyId;
-    }
+	public Exchange deriveOtherPartyExchange() {
+		Exchange otherPartyExchange = new Exchange();
+		if (Objects.nonNull(id)) {
+			otherPartyExchange.setId(deriveOtherPartyExchangeId());
+		}
+		otherPartyExchange.setFirstPartyId(otherPartyId);
+		otherPartyExchange.setOtherPartyId(firstPartyId);
+		otherPartyExchange.setFirstPartyBookId(otherPartyBookId);
+		otherPartyExchange.setOtherPartyBookId(firstPartyBookId);
+		return otherPartyExchange;
+	}
+
+	public String deriveOtherPartyExchangeId() {
+		return id.split("_")[0] + "_" + otherPartyId;
+	}
+
+	public void computeId() {
+		id = RandomStringUtils.random(5, false, true) + this.hashCode() + "_" + firstPartyId;
+	}
+
 }

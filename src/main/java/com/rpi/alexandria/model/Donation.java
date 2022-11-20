@@ -10,12 +10,14 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Donation implements IBookDonation {
-    String id;
 
-    @PartitionKey
-    String firstPartyId;
+	String id;
 
-    String otherPartyId;
+	@PartitionKey
+	String firstPartyId;
 
-    String firstPartyBookId;
+	String otherPartyId;
+
+	String firstPartyBookId;
+
 }

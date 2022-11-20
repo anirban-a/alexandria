@@ -17,35 +17,42 @@ import java.util.List;
 @Service
 @Slf4j
 public class BookExchangeService implements IBookExchangeService {
-    BookExchangeRepository bookExchangeRepository;
 
-    @Override
-    public void createExchange(Exchange exchange) {
-        exchange.computeId();
-        Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
-        bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
-    }
+	BookExchangeRepository bookExchangeRepository;
 
-    @Override
-    public void deleteExchange(Exchange exchange) {
-        bookExchangeRepository.deleteById(exchange.getId());
-    }
+	@Override
+	public void createExchange(Exchange exchange) {
+		exchange.computeId();
+		Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
+		bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
+	}
 
-    @Override
-    public List<Exchange> getAllExchangesByUserId(String userId) {
-        return bookExchangeRepository.findAll(new PartitionKey(userId));
-    }
+	@Override
+	public void deleteExchange(Exchange exchange) {
+		String otherPartyExchangeId = exchange.deriveOtherPartyExchangeId();
+		log.info("Deleting Ids: {}, {}", exchange.getId(), otherPartyExchangeId);
+		bookExchangeRepository.deleteById(exchange.getId(), new PartitionKey(exchange.getFirstPartyId()));
+		bookExchangeRepository.deleteById(otherPartyExchangeId, new PartitionKey(exchange.getOtherPartyId()));
+	}
 
-    @Override
-    public void markCompleted(String id, String userId) {
-        Exchange exchange = bookExchangeRepository
-                .findById(id, new PartitionKey(userId)).orElseThrow(() -> new ApplicationException(String.format("No such exchange by id %s found", id)));
-        exchange.setCompleted(true);
-        String otherPartyExchangeId = exchange.getId().split("_")[0]+"_"+exchange.getOtherPartyId();
-        log.info(otherPartyExchangeId);
-        Exchange otherPartyExchange = bookExchangeRepository
-                .findById(otherPartyExchangeId, new PartitionKey(exchange.getOtherPartyId())).orElseThrow(() -> new ApplicationException(String.format("No such exchange by id %s found for other party", id)));
-        otherPartyExchange.setCompleted(true);
-        bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
-    }
+	@Override
+	public List<Exchange> getAllExchangesByUserId(String userId) {
+		return bookExchangeRepository.findAll(new PartitionKey(userId));
+	}
+
+	@Override
+	public void markCompleted(String id, String userId) {
+		Exchange exchange = bookExchangeRepository.findById(id, new PartitionKey(userId))
+				.orElseThrow(() -> new ApplicationException(String.format("No such exchange by id %s found", id)));
+		exchange.setCompleted(true);
+		String otherPartyExchangeId = exchange.getId().split("_")[0] + "_" + exchange.getOtherPartyId();
+		log.info(otherPartyExchangeId);
+		Exchange otherPartyExchange = bookExchangeRepository
+				.findById(otherPartyExchangeId, new PartitionKey(exchange.getOtherPartyId()))
+				.orElseThrow(() -> new ApplicationException(
+						String.format("No such exchange by id %s found for other party", id)));
+		otherPartyExchange.setCompleted(true);
+		bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
+	}
+
 }
