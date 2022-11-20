@@ -33,6 +33,7 @@ import java.util.Base64;
 public class ApplicationController {
 
 	UserService userService;
+	UserEmailNotificationService userEmailNotificationService;
 
 	JwtService jwtService;
 
@@ -74,6 +75,7 @@ public class ApplicationController {
 	public ResponseEntity<AppResponse> signup(@RequestBody User user) throws ApplicationException {
 		log.info("Received request..");
 		userService.createUser(user);
+		userEmailNotificationService.sendUserAccountValidationEmail(user);
 		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
 				.message("User created successfully").build();
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
