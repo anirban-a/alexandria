@@ -42,7 +42,7 @@ public class EmailService {
 			helper.setText(details.getMsgBody());
 
 			// Sending the mail
-			Transport.send(message, sender, "password");
+			Transport.send(message, sender, "skmkipduewodhwcy");
 			return "Mail Sent Successfully...";
 		}
 
