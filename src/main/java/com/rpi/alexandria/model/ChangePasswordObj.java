@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Email implements IEmailNotification{
+public class ChangePasswordObj {
 
-	private String recipient;
+    private String email;
 
-	private String message;
+    private String resetToken;
 
-	private String subject;
+    private String newPassword;
 
 }

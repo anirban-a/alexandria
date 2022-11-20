@@ -7,12 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Email implements IEmailNotification{
+public class StringObj {
 
-	private String recipient;
-
-	private String message;
-
-	private String subject;
+    private String email;
 
 }

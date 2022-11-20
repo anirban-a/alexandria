@@ -61,6 +61,47 @@ public class UserService implements UserDetailsService {
 		log.info("User saved into DB");
 	}
 
+
+
+	//generate random n-char long alphanumeric(all caps) string
+	public String generateRandomString(int n) {
+		Random random = new Random();
+		String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		StringBuilder randomStr = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			randomStr.append(alpha.charAt(random.nextInt(alpha.length())));
+		}
+		return randomStr.toString();
+	}
+
+	public String generateResetToken(String emailAddress) {
+		String resetToken = generateRandomString(6);
+		User user = getUser(emailAddress);
+		String encodedResetToken = passwordEncoder.encode(resetToken);
+		user.setPasswordResetToken(encodedResetToken);
+		log.info("encoded:"+encodedResetToken);
+		userRepository.save(user);
+		return resetToken;
+	}
+
+	public boolean compareResetToken(String emailAddress, String resetToken) {
+		User user = getUser(emailAddress);
+		return passwordEncoder.matches(resetToken, user.getPasswordResetToken());
+	}
+
+	public boolean updatePassword(String email, String token, String newPassword) {
+		if (compareResetToken(email, token)) {
+			User user = getUser(email);
+			user.setPassword(passwordEncoder.encode(newPassword));
+			user.setPasswordResetToken("");
+			userRepository.save(user);
+			return true;
+		}
+		return false;
+	}
+
+
+
 	public boolean isValidUser(final User user) {
 		UserDetails userDetails = loadUserByUsername(user.getUsername());
 		return passwordEncoder.matches(user.getPassword(), userDetails.getPassword()) && userDetails.isEnabled();

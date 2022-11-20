@@ -1,11 +1,10 @@
 package com.rpi.alexandria.service;
 
+import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.Email;
+import com.rpi.alexandria.model.IEmailNotification;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
@@ -16,41 +15,51 @@ import java.util.Properties;
 
 @Service
 @Slf4j
-public class EmailService {
+public class EmailService implements INotificationService<IEmailNotification> {
 
-	private String sender = "noreply.alexandriaemail@gmail.com";
+    private final String password;
+    private final String sender;
 
-	public String sendSimpleEmail(Email details) {
-		// Try block to check for exceptions
-		try {
-			Properties prop = new Properties();
-			prop.setProperty("mail.host", "smtp.gmail.com");
-			prop.setProperty("mail.transport.protocol", "smtp");
-			prop.setProperty("mail.smtp.auth", "true");
-			prop.setProperty("mail.smtp.starttls.enable", "true");
-			prop.setProperty("mail.debug", "true");
-			prop.setProperty("mail.smtp.ssl.enable", "true");
-			prop.setProperty("mail.test-connection", "true");
+    public EmailService(@Value("${application.email.password}") String password, @Value("${application.email.accountId}") String sender) {
+        this.password = password;
+        this.sender = sender;
+    }
 
-			Session session = Session.getInstance(prop);
-			MimeMessage message = new MimeMessage(session);
+    public String sendSimpleEmail(Email details) {
+        sendNotification(details);
+        return "Mail Sent Successfully...";
+    }
 
-			MimeMessageHelper helper = new MimeMessageHelper(message, true);
-			helper.setFrom(sender);
-			helper.setTo(details.getRecipient());
-			helper.setSubject(details.getSubject());
-			helper.setText(details.getMsgBody());
+    @Override
+    public void sendNotification(IEmailNotification notification) {
+        // Try block to check for exceptions
+        try {
+            Properties prop = new Properties();
+            prop.setProperty("mail.host", "smtp.gmail.com");
+            prop.setProperty("mail.transport.protocol", "smtp");
+            prop.setProperty("mail.smtp.auth", "true");
+            prop.setProperty("mail.smtp.starttls.enable", "true");
+            prop.setProperty("mail.debug", "true");
+            prop.setProperty("mail.smtp.ssl.enable", "true");
+            prop.setProperty("mail.test-connection", "true");
 
-			// Sending the mail
-			Transport.send(message, sender, "skmkipduewodhwcy");
-			return "Mail Sent Successfully...";
-		}
+            Session session = Session.getInstance(prop);
+            MimeMessage message = new MimeMessage(session);
 
-		// Catch block to handle the exceptions
-		catch (Exception e) {
-			return e.getMessage();
-			// return "Error while Sending Mail";
-		}
-	}
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(sender);
+            helper.setTo(notification.getRecipient());
+            helper.setSubject(notification.getSubject());
+            helper.setText(notification.getMessage());
 
+            // Sending the mail
+            Transport.send(message, sender, password);
+
+        }
+
+        // Catch block to handle the exceptions
+        catch (Exception e) {
+            throw new ApplicationException(e.getMessage());
+        }
+    }
 }
