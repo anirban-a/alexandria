@@ -21,22 +21,23 @@ public class BookExchangeService implements IBookExchangeService {
 	BookExchangeRepository bookExchangeRepository;
 
 	@Override
-	public void createExchange(Exchange exchange) {
+	public void createTransaction(Exchange exchange) {
 		exchange.computeId();
 		Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
 		bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
 	}
 
 	@Override
-	public void deleteExchange(Exchange exchange) {
+	public void deleteTransaction(Exchange exchange) {
 		String otherPartyExchangeId = exchange.deriveOtherPartyExchangeId();
 		log.info("Deleting Ids: {}, {}", exchange.getId(), otherPartyExchangeId);
 		bookExchangeRepository.deleteById(exchange.getId(), new PartitionKey(exchange.getFirstPartyId()));
 		bookExchangeRepository.deleteById(otherPartyExchangeId, new PartitionKey(exchange.getOtherPartyId()));
 	}
 
+
 	@Override
-	public List<Exchange> getAllExchangesByUserId(String userId) {
+	public List<Exchange> getAllTransactionsByUserId(String userId) {
 		return bookExchangeRepository.findAll(new PartitionKey(userId));
 	}
 

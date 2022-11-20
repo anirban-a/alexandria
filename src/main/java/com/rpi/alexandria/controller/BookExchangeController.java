@@ -30,7 +30,7 @@ public class BookExchangeController extends BaseController {
 	@GetMapping
 	public ResponseEntity<AppResponse> getAllExchange() {
 		String username = getUser().getUsername();
-		List<Exchange> exchangeList = bookExchangeService.getAllExchangesByUserId(username);
+		List<Exchange> exchangeList = bookExchangeService.getAllTransactionsByUserId(username);
 		AppResponse<List<Exchange>> appResponse = buildAppResponse("", HttpStatus.OK);
 		appResponse.setData(exchangeList);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
@@ -39,7 +39,7 @@ public class BookExchangeController extends BaseController {
 	@PostMapping
 	public ResponseEntity<AppResponse> createExchange(@RequestBody Exchange exchange) {
 		log.info("Received book exchange request");
-		bookExchangeService.createExchange(exchange);
+		bookExchangeService.createTransaction(exchange);
 		AppResponse appResponse = buildAppResponse("Book marked for exchange successfully", HttpStatus.OK);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
@@ -56,7 +56,7 @@ public class BookExchangeController extends BaseController {
 	@DeleteMapping
 	public ResponseEntity<AppResponse> deleteExchange(@RequestBody Exchange exchange) {
 		log.info("Received book exchange delete request");
-		bookExchangeService.deleteExchange(exchange);
+		bookExchangeService.deleteTransaction(exchange);
 		AppResponse appResponse = buildAppResponse("Book exchange deleted successfully", HttpStatus.OK);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}

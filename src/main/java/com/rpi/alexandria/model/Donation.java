@@ -20,4 +20,5 @@ public class Donation implements IBookDonation {
 
 	String firstPartyBookId;
 
+	Boolean completed = false;
 }

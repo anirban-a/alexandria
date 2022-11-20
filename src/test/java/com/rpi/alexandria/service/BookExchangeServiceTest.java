@@ -34,7 +34,10 @@ public class BookExchangeServiceTest {
 	ArgumentCaptor<List<Exchange>> exchangeArgumentCaptor;
 
 	@Captor
-	ArgumentCaptor<List<String>> iterableExchangeIdArgumentCaptor;
+	ArgumentCaptor<String> exchangeIdArgumentCaptor;
+
+	@Captor
+	ArgumentCaptor<PartitionKey> partitionKeyArgumentCaptor;
 
 	@AfterEach
 	public void setup() {
@@ -56,7 +59,7 @@ public class BookExchangeServiceTest {
 		Mockito.when(bookExchangeRepository.saveAll(Mockito.anyCollection())).thenReturn(null);
 
 		// call the service
-		bookExchangeService.createExchange(exchange);
+		bookExchangeService.createTransaction(exchange);
 
 		Mockito.verify(bookExchangeRepository, Mockito.times(1)).saveAll(exchangeArgumentCaptor.capture());
 
@@ -90,7 +93,7 @@ public class BookExchangeServiceTest {
 
 		Mockito.when(bookExchangeRepository.findAll(new PartitionKey(Mockito.any()))).thenReturn(List.of(exchange));
 
-		bookExchangeService.getAllExchangesByUserId(exchange.getFirstPartyId());
+		bookExchangeService.getAllTransactionsByUserId(exchange.getFirstPartyId());
 
 		Mockito.verify(bookExchangeRepository, Mockito.times(1)).findAll(Mockito.any(PartitionKey.class));
 	}
@@ -134,16 +137,18 @@ public class BookExchangeServiceTest {
 
 		Exchange otherPartyExchange = exchange.deriveOtherPartyExchange();
 
-		Mockito.doNothing().when(bookExchangeRepository).deleteAllById(Mockito.anyCollection());
+		Mockito.doNothing().when(bookExchangeRepository).deleteById(Mockito.anyString(), Mockito.any(PartitionKey.class));
 
-		bookExchangeService.deleteExchange(exchange);
+		bookExchangeService.deleteTransaction(exchange);
 
-		Mockito.verify(bookExchangeRepository, Mockito.times(1))
-				.deleteAllById(iterableExchangeIdArgumentCaptor.capture());
+		Mockito.verify(bookExchangeRepository, Mockito.times(2))
+				.deleteById(exchangeIdArgumentCaptor.capture(), partitionKeyArgumentCaptor.capture());
 
-		List<String> deletedExchangeIds = iterableExchangeIdArgumentCaptor.getValue();
+		List<String> deletedExchangeIds = exchangeIdArgumentCaptor.getAllValues();
+		List<PartitionKey> partitionKeys = partitionKeyArgumentCaptor.getAllValues();
 
 		assertTrue(deletedExchangeIds.stream().anyMatch(id -> id.equals(otherPartyExchange.getId())));
+		assertTrue(partitionKeys.stream().anyMatch(partitionKey -> partitionKey.equals(new PartitionKey(exchange.getOtherPartyId()))));
 	}
 
 }

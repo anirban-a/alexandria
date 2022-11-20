@@ -4,13 +4,13 @@ import com.rpi.alexandria.model.Exchange;
 
 import java.util.List;
 
-public interface IBookExchangeService {
+public interface IBookExchangeService extends ITransactableBookService<Exchange>{
 
-	void createExchange(Exchange exchange);
+	void createTransaction(Exchange exchange);
 
-	void deleteExchange(Exchange exchange);
+	void deleteTransaction(Exchange exchange);
 
-	List<Exchange> getAllExchangesByUserId(String userId);
+	List<Exchange> getAllTransactionsByUserId(String userId);
 
 	void markCompleted(String id, String userId);
 
