@@ -44,6 +44,15 @@ public class BookExchangeController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
+	@PostMapping("/complete/{id}")
+	public ResponseEntity<AppResponse> markComplete(@PathVariable String id) {
+		log.info("Received book exchange request");
+		String username = getUser().getUsername();
+		bookExchangeService.markCompleted(id, username);
+		AppResponse appResponse = buildAppResponse("Book exchange marked complete successfully", HttpStatus.OK);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
+
 	@DeleteMapping
 	public ResponseEntity<AppResponse> deleteExchange(@RequestBody Exchange exchange) {
 		log.info("Received book exchange delete request");
