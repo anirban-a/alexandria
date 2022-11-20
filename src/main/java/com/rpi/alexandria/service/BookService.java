@@ -45,6 +45,10 @@ public class BookService {
 		return bookRepository.findByIsbn(isbn);
 	}
 
+	public void deleteById(String id) {
+		bookRepository.deleteById(id);
+	}
+
 	public List<Book> findAllBooksByName(String name) {
 		MatchPhraseQueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("name", name);
 		Query searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
