@@ -83,4 +83,12 @@ public class BookController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
+	@DeleteMapping("/{id}")
+	public ResponseEntity<AppResponse> deleteBook(@PathVariable("id") String id) {
+		log.info("Received delete book request");
+		bookService.deleteById(id);
+		AppResponse appResponse = buildAppResponse("Book deleted successfully", HttpStatus.OK);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
+
 }
