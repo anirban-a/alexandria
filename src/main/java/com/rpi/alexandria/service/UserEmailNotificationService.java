@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -24,7 +26,9 @@ public class UserEmailNotificationService {
 
     BCryptPasswordEncoder passwordEncoder;
 
-    public void sendAccountVerificationEmail(User user) {
+    final ExecutorService threadPool = Executors.newCachedThreadPool();
+
+    public void sendUserAccountValidationEmail(User user) {
         String randomText = String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli());
 
         String code = passwordEncoder.encode(randomText);
@@ -37,11 +41,14 @@ public class UserEmailNotificationService {
         String subject = "Alexandria - Account verification code";
         String message = String.format("Your account validation code is: %s", code);
 
+        sendEmail(user.getUsername(), subject, message);
+    }
+
+    private void sendEmail(String emailId, String subject, String message) {
         Email email = new Email();
         email.setMessage(message);
         email.setSubject(subject);
-        email.setRecipient(user.getUsername());
-
-        emailNotificationService.sendNotification(email);
+        email.setRecipient(emailId);
+        threadPool.submit(() -> emailNotificationService.sendNotification(email));
     }
 }
