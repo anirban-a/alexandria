@@ -28,7 +28,7 @@ public class BookExchangeServiceTest {
 	final BookExchangeRepository bookExchangeRepository = Mockito.mock(BookExchangeRepository.class);
 
 	@InjectMocks
-	IBookExchangeService bookExchangeService = new BookExchangeService(bookExchangeRepository);
+	ITransactableBookService<Exchange> bookExchangeService = new BookExchangeService(bookExchangeRepository);
 
 	@Captor
 	ArgumentCaptor<List<Exchange>> exchangeArgumentCaptor;

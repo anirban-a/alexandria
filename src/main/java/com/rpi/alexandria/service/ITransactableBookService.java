@@ -8,4 +8,6 @@ public interface ITransactableBookService<T extends Transactable> {
     void createTransaction(T book);
     void deleteTransaction(T book);
     List<T> getAllTransactionsByUserId(String userId);
+
+    void markCompleted(String id, String userId);
 }
