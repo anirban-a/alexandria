@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Email implements INotification{
+public class Email implements IEmailNotification{
 
 	private String recipient;
 
