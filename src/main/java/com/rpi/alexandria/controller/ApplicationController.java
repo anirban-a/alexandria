@@ -4,6 +4,7 @@ import com.rpi.alexandria.controller.response.AppResponse;
 import com.rpi.alexandria.controller.response.JWTResponse;
 import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.User;
+import com.rpi.alexandria.service.UserEmailNotificationService;
 import com.rpi.alexandria.service.UserService;
 import com.rpi.alexandria.service.security.JwtService;
 import lombok.AccessLevel;
@@ -29,6 +30,7 @@ import java.util.Base64;
 public class ApplicationController {
 
 	UserService userService;
+	UserEmailNotificationService userEmailNotificationService;
 
 	JwtService jwtService;
 
@@ -68,6 +70,7 @@ public class ApplicationController {
 	public ResponseEntity<AppResponse> signup(@RequestBody User user) throws ApplicationException {
 		log.info("Received request..");
 		userService.createUser(user);
+		userEmailNotificationService.sendAccountVerificationEmail(user);
 		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
 				.message("User created successfully").build();
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
