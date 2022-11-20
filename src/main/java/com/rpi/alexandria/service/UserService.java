@@ -1,7 +1,7 @@
 package com.rpi.alexandria.service;
 
 import com.azure.cosmos.models.PartitionKey;
-import com.rpi.alexandria.exception.UserException;
+import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.Rating;
 import com.rpi.alexandria.model.University;
 import com.rpi.alexandria.model.User;
@@ -36,17 +36,18 @@ public class UserService implements UserDetailsService {
 
 	PasswordEncoder passwordEncoder;
 
-	public void createUser(final User user) throws UserException {
+	public void createUser(final User user) throws ApplicationException {
 		if (userRepository.findById(user.getUsername(), new PartitionKey(user.getUsername())).isPresent()) {
-			throw new UserException(String.format("A user by the username %s already exists", user.getUsername()));
+			throw new ApplicationException(
+					String.format("A user by the username %s already exists", user.getUsername()));
 		}
 		if (ObjectUtils.isEmpty(user.getUniversity()) || StringUtils.isEmpty(user.getUniversity().getName())) {
-			throw new UserException("An invalid university name provided");
+			throw new ApplicationException("An invalid university name provided");
 		}
 		String universityId = user.getUniversity().computeId();
 		Optional<University> universityOptional = universityRepository.findById(universityId);
 		if (universityOptional.isEmpty()) {
-			throw new UserException(
+			throw new ApplicationException(
 					String.format("University name %s provided not found", user.getUniversity().getName()));
 		}
 		String password = user.getPassword();

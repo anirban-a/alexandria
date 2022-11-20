@@ -1,16 +1,21 @@
 package com.rpi.alexandria.dto;
 
 import com.rpi.alexandria.model.Book;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
 @ToString
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookDTO implements Mappable<Book> {
+
+	String id;
 
 	@NotBlank(message = "ISBN is mandatory")
 	String isbn;
@@ -27,9 +32,11 @@ public class BookDTO implements Mappable<Book> {
 
 	Boolean forGiveAway;
 
+	String owner;
+
 	public static BookDTO of(Book book) {
-		return new BookDTO(book.getIsbn(), book.getName(), book.getCondition(), book.getDescription(),
-				book.getForExchange(), book.getForGiveAway());
+		return new BookDTO(book.getId(), book.getIsbn(), book.getName(), book.getCondition(), book.getDescription(),
+				book.getForExchange(), book.getForGiveAway(), book.getListedBy().getUsername());
 	}
 
 	@Override
