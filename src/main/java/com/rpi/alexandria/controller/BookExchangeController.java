@@ -3,6 +3,7 @@ package com.rpi.alexandria.controller;
 import com.rpi.alexandria.controller.response.AppResponse;
 import com.rpi.alexandria.model.Exchange;
 import com.rpi.alexandria.service.BookExchangeService;
+import com.rpi.alexandria.service.ITransactableBookService;
 import com.rpi.alexandria.service.UserService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -20,7 +21,7 @@ import java.util.List;
 @CrossOrigin("http://localhost:${ui.port}")
 public class BookExchangeController extends BaseController {
 
-	BookExchangeService bookExchangeService;
+	ITransactableBookService<Exchange> bookExchangeService;
 
 	public BookExchangeController(UserService userService, BookExchangeService bookExchangeService) {
 		super(userService);
@@ -28,7 +29,7 @@ public class BookExchangeController extends BaseController {
 	}
 
 	@GetMapping
-	public ResponseEntity<AppResponse> getAllExchange() {
+	public ResponseEntity<AppResponse<List<Exchange>>> getAllExchange() {
 		String username = getUser().getUsername();
 		List<Exchange> exchangeList = bookExchangeService.getAllTransactionsByUserId(username);
 		AppResponse<List<Exchange>> appResponse = buildAppResponse("", HttpStatus.OK);
@@ -37,27 +38,27 @@ public class BookExchangeController extends BaseController {
 	}
 
 	@PostMapping
-	public ResponseEntity<AppResponse> createExchange(@RequestBody Exchange exchange) {
+	public ResponseEntity<AppResponse<Void>> createExchange(@RequestBody Exchange exchange) {
 		log.info("Received book exchange request");
 		bookExchangeService.createTransaction(exchange);
-		AppResponse appResponse = buildAppResponse("Book marked for exchange successfully", HttpStatus.OK);
+		AppResponse<Void> appResponse = buildAppResponse("Book marked for exchange successfully", HttpStatus.OK);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
 	@PostMapping("/complete/{id}")
-	public ResponseEntity<AppResponse> markComplete(@PathVariable String id) {
+	public ResponseEntity<AppResponse<Void>> markComplete(@PathVariable String id) {
 		log.info("Received book exchange request");
 		String username = getUser().getUsername();
 		bookExchangeService.markCompleted(id, username);
-		AppResponse appResponse = buildAppResponse("Book exchange marked complete successfully", HttpStatus.OK);
+		AppResponse<Void> appResponse = buildAppResponse("Book exchange marked complete successfully", HttpStatus.OK);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
 	@DeleteMapping
-	public ResponseEntity<AppResponse> deleteExchange(@RequestBody Exchange exchange) {
+	public ResponseEntity<AppResponse<Void>> deleteExchange(@RequestBody Exchange exchange) {
 		log.info("Received book exchange delete request");
 		bookExchangeService.deleteTransaction(exchange);
-		AppResponse appResponse = buildAppResponse("Book exchange deleted successfully", HttpStatus.OK);
+		AppResponse<Void> appResponse = buildAppResponse("Book exchange deleted successfully", HttpStatus.OK);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
