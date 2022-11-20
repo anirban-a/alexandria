@@ -3,7 +3,11 @@ package com.rpi.alexandria.controller;
 import com.rpi.alexandria.controller.response.AppResponse;
 import com.rpi.alexandria.controller.response.JWTResponse;
 import com.rpi.alexandria.exception.ApplicationException;
+import com.rpi.alexandria.model.ChangePasswordObj;
+import com.rpi.alexandria.model.Email;
+import com.rpi.alexandria.model.StringObj;
 import com.rpi.alexandria.model.User;
+import com.rpi.alexandria.service.EmailService;
 import com.rpi.alexandria.service.UserService;
 import com.rpi.alexandria.service.security.JwtService;
 import lombok.AccessLevel;
@@ -31,6 +35,8 @@ public class ApplicationController {
 	UserService userService;
 
 	JwtService jwtService;
+
+	EmailService emailService;
 
 	private final AuthenticationManager authenticationManager;
 
@@ -71,6 +77,40 @@ public class ApplicationController {
 		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
 				.message("User created successfully").build();
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
+
+	@PostMapping("/passwordReset")
+	public ResponseEntity<AppResponse> resetToken(@RequestBody StringObj email) {
+		log.info("Received generate reset token request...");
+		String emailAddress = email.getEmail();
+		String generatedToken = userService.generateResetToken(emailAddress);
+		log.info("TOKEN: " + generatedToken);
+		String emailMessageBody = "Hi,\n\nPlease use the following code to reset you account password:\n\n"
+				+ generatedToken + "\n\n";
+		String emailSubject = "Alexandria Account Password Reset Token";
+		Email tokenEmail = new Email(emailAddress, emailMessageBody, emailSubject);
+		emailService.sendSimpleEmail(tokenEmail);
+		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+				.message("Password reset token has been generated for user with specified email address").build();
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
+
+	@PostMapping("/changePassword")
+	public ResponseEntity<AppResponse> changePassword(@RequestBody ChangePasswordObj input) {
+		log.info("Received change password request...");
+		String email = input.getEmail();
+		String token = input.getResetToken();
+		String newPassword = input.getNewPassword();
+		if (userService.updatePassword(email, token, newPassword)) {
+			AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+					.message("changed user password.").build();
+			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+		}
+		else {
+			AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+					.message("did NOT change user password.").build();
+			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+		}
 	}
 
 	@GetMapping("/home")
