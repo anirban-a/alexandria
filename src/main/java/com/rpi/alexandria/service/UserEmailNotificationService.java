@@ -26,6 +26,8 @@ public class UserEmailNotificationService {
 
     BCryptPasswordEncoder passwordEncoder;
 
+    UserService userService;
+
     final ExecutorService threadPool = Executors.newCachedThreadPool();
 
     public void sendUserAccountValidationEmail(User user) {
@@ -42,6 +44,15 @@ public class UserEmailNotificationService {
         String message = String.format("Your account validation code is: %s", code);
 
         sendEmail(user.getUsername(), subject, message);
+    }
+
+    public void sendPasswordResetEmail(String emailAddress) {
+        String generatedToken = userService.generateResetToken(emailAddress);
+        log.info("TOKEN: " + generatedToken);
+        String emailMessageBody = "Hi,\n\nPlease use the following code to reset you account password:\n\n"
+                + generatedToken + "\n\n";
+        String emailSubject = "Alexandria Account Password Reset Token";
+        sendEmail(emailAddress, emailSubject, emailMessageBody);
     }
 
     private void sendEmail(String emailId, String subject, String message) {
