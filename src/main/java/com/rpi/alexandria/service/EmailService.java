@@ -2,10 +2,6 @@ package com.rpi.alexandria.service;
 
 import com.rpi.alexandria.model.Email;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +35,7 @@ public class EmailService {
 			helper.setFrom(sender);
 			helper.setTo(details.getRecipient());
 			helper.setSubject(details.getSubject());
-			helper.setText(details.getMsgBody());
+			helper.setText(details.getMessage());
 
 			// Sending the mail
 			Transport.send(message, sender, "password");
