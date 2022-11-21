@@ -4,6 +4,7 @@ import com.azure.cosmos.models.PartitionKey;
 import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.Exchange;
 import com.rpi.alexandria.repository.BookExchangeRepository;
+import com.rpi.alexandria.repository.BookRepository;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
