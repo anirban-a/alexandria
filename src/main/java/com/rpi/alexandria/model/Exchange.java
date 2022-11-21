@@ -35,6 +35,8 @@ public class Exchange implements IBookExchange {
 
 	Boolean completed = false;
 
+	String initiatorId;
+
 	public Exchange deriveOtherPartyExchange() {
 		Exchange otherPartyExchange = new Exchange();
 		if (Objects.nonNull(id)) {
@@ -44,6 +46,7 @@ public class Exchange implements IBookExchange {
 		otherPartyExchange.setOtherPartyId(firstPartyId);
 		otherPartyExchange.setFirstPartyBookId(otherPartyBookId);
 		otherPartyExchange.setOtherPartyBookId(firstPartyBookId);
+		otherPartyExchange.setInitiatorId(initiatorId);
 		return otherPartyExchange;
 	}
 

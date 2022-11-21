@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,10 +51,12 @@ public class BookExchangeServiceTest {
 		Exchange exchange = new Exchange();
 		String firstPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
 		String otherPartyId = String.format("%s@test.com", RandomStringUtils.random(5));
+
 		exchange.setFirstPartyBookId(RandomStringUtils.random(10));
 		exchange.setOtherPartyBookId(RandomStringUtils.random(10));
 		exchange.setFirstPartyId(firstPartyId);
 		exchange.setOtherPartyId(otherPartyId);
+		exchange.setInitiatorId(firstPartyId);
 		// exchange.computeId();
 
 		Mockito.when(bookExchangeRepository.saveAll(Mockito.anyCollection())).thenReturn(null);
@@ -78,6 +81,8 @@ public class BookExchangeServiceTest {
 		assertTrue(exchangeList.stream().map(Exchange::getOtherPartyId)
 				.anyMatch(id -> id.equals(exchange.getFirstPartyId())));
 		assertEquals(0, exchangeList.stream().filter(Exchange::getCompleted).count());
+
+		assertEquals(2, exchangeList.stream().map(Exchange::getInitiatorId).filter(Predicate.isEqual(firstPartyId)).count());
 	}
 
 	@Test
