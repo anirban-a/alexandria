@@ -21,45 +21,48 @@ import java.util.concurrent.Executors;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserEmailNotificationService {
-    INotificationService<IEmailNotification> emailNotificationService;
-    EmailValidationCodeRepository validationCodeRepository;
 
-    BCryptPasswordEncoder passwordEncoder;
+	INotificationService<IEmailNotification> emailNotificationService;
 
-    UserService userService;
+	EmailValidationCodeRepository validationCodeRepository;
 
-    final ExecutorService threadPool = Executors.newCachedThreadPool();
+	BCryptPasswordEncoder passwordEncoder;
 
-    public void sendUserAccountValidationEmail(User user) {
-        String randomText = String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli());
+	UserService userService;
 
-        String code = passwordEncoder.encode(randomText);
-        EmailValidationCode validationCode = new EmailValidationCode();
-        validationCode.setUserId(user.getUsername());
-        validationCode.setValidationCode(code);
+	final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-        validationCodeRepository.save(validationCode);
+	public void sendUserAccountValidationEmail(User user) {
+		String randomText = String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli());
 
-        String subject = "Alexandria - Account verification code";
-        String message = String.format("Your account validation code is: %s", code);
+		String code = passwordEncoder.encode(randomText);
+		EmailValidationCode validationCode = new EmailValidationCode();
+		validationCode.setUserId(user.getUsername());
+		validationCode.setValidationCode(code);
 
-        sendEmail(user.getUsername(), subject, message);
-    }
+		validationCodeRepository.save(validationCode);
 
-    public void sendPasswordResetEmail(String emailAddress) {
-        String generatedToken = userService.generateResetToken(emailAddress);
-        log.info("TOKEN: " + generatedToken);
-        String emailMessageBody = "Hi,\n\nPlease use the following code to reset you account password:\n\n"
-                + generatedToken + "\n\n";
-        String emailSubject = "Alexandria Account Password Reset Token";
-        sendEmail(emailAddress, emailSubject, emailMessageBody);
-    }
+		String subject = "Alexandria - Account verification code";
+		String message = String.format("Your account validation code is: %s", code);
 
-    private void sendEmail(String emailId, String subject, String message) {
-        Email email = new Email();
-        email.setMessage(message);
-        email.setSubject(subject);
-        email.setRecipient(emailId);
-        threadPool.submit(() -> emailNotificationService.sendNotification(email));
-    }
+		sendEmail(user.getUsername(), subject, message);
+	}
+
+	public void sendPasswordResetEmail(String emailAddress) {
+		String generatedToken = userService.generateResetToken(emailAddress);
+		log.info("TOKEN: " + generatedToken);
+		String emailMessageBody = "Hi,\n\nPlease use the following code to reset you account password:\n\n"
+				+ generatedToken + "\n\n";
+		String emailSubject = "Alexandria Account Password Reset Token";
+		sendEmail(emailAddress, emailSubject, emailMessageBody);
+	}
+
+	private void sendEmail(String emailId, String subject, String message) {
+		Email email = new Email();
+		email.setMessage(message);
+		email.setSubject(subject);
+		email.setRecipient(emailId);
+		threadPool.submit(() -> emailNotificationService.sendNotification(email));
+	}
+
 }

@@ -61,9 +61,7 @@ public class UserService implements UserDetailsService {
 		log.info("User saved into DB");
 	}
 
-
-
-	//generate random n-char long alphanumeric(all caps) string
+	// generate random n-char long alphanumeric(all caps) string
 	public String generateRandomString(int n) {
 		Random random = new Random();
 		String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -79,7 +77,7 @@ public class UserService implements UserDetailsService {
 		User user = getUser(emailAddress);
 		String encodedResetToken = passwordEncoder.encode(resetToken);
 		user.setPasswordResetToken(encodedResetToken);
-		log.info("encoded:"+encodedResetToken);
+		log.info("encoded:" + encodedResetToken);
 		userRepository.save(user);
 		return resetToken;
 	}
@@ -99,8 +97,6 @@ public class UserService implements UserDetailsService {
 		}
 		return false;
 	}
-
-
 
 	public boolean isValidUser(final User user) {
 		UserDetails userDetails = loadUserByUsername(user.getUsername());

@@ -42,6 +42,15 @@ public class BookController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
+	@GetMapping("{id}")
+	public ResponseEntity<AppResponse> getBookById(@PathVariable String id) {
+		log.info("Received request to get book by id: {}", id);
+		BookDTO bookDTO = BookDTO.of(bookService.findById(id));
+		AppResponse<BookDTO> appResponse = buildAppResponse("Book added successfully", HttpStatus.OK);
+		appResponse.setData(bookDTO);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
+
 	@GetMapping
 	public ResponseEntity<AppResponse<List<BookDTO>>> getBookByISBN(@QueryParam("isbn") String isbn,
 			@QueryParam("name") String name) {
