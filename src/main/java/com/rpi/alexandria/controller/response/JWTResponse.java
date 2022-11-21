@@ -19,4 +19,5 @@ public class JWTResponse {
 	String lastName;
 
 	String email;
+
 }

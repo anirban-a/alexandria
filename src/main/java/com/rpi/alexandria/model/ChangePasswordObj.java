@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChangePasswordObj {
 
-    private String email;
+	private String email;
 
-    private String resetToken;
+	private String resetToken;
 
-    private String newPassword;
+	private String newPassword;
 
 }

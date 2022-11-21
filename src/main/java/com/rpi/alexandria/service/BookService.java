@@ -1,5 +1,6 @@
 package com.rpi.alexandria.service;
 
+import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.Book;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.repository.BookRepository;
@@ -43,6 +44,11 @@ public class BookService {
 
 	public List<Book> findByISBN(String isbn) {
 		return bookRepository.findByIsbn(isbn);
+	}
+
+	public Book findById(String id) {
+		return bookRepository.findById(id)
+				.orElseThrow(() -> new ApplicationException(String.format("No such book by id: %s found", id)));
 	}
 
 	public void deleteById(String id) {

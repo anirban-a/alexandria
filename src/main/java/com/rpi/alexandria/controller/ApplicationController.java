@@ -32,85 +32,88 @@ import java.util.Base64;
 @CrossOrigin("http://localhost:${ui.port}")
 public class ApplicationController {
 
-    UserService userService;
-    UserEmailNotificationService userEmailNotificationService;
+	UserService userService;
 
-    JwtService jwtService;
+	UserEmailNotificationService userEmailNotificationService;
 
-    EmailService emailService;
+	JwtService jwtService;
 
-    private final AuthenticationManager authenticationManager;
+	EmailService emailService;
 
-    @GetMapping("/login")
-    public ResponseEntity<JWTResponse> login(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        log.info("Received login request..");
-        if (!StringUtils.isEmpty(authHeader)) {
-            log.info(authHeader);
-            String[] tokens = authHeader.split(" ");
-            if (StringUtils.equals(tokens[0], "Basic")) {
+	private final AuthenticationManager authenticationManager;
 
-                String decodedAuthHeader = new String(Base64.getDecoder().decode(tokens[1]));
-                log.info("Decoded auth header: {}", decodedAuthHeader);
-                String[] credentials = decodedAuthHeader.split(":");
-                String username = credentials[0];
-                String password = credentials[1];
-                if (userService.isValidUser(username, password)) {
-                    User user = userService.getUser(username);
-                    String jwt = jwtService.getJwt(user);
-                    return ResponseEntity.ok(new JWTResponse(jwt, user.getFirstName(), user.getLastName(), user.getUsername()));
-                }
-            }
-            if (StringUtils.equals(tokens[0], "Bearer")) {
-                String jwt = new String(Base64.getDecoder().decode(tokens[1]));
-                if (jwtService.validate(jwt)) {
-                    return ResponseEntity.ok().build();
-                }
-            }
+	@GetMapping("/login")
+	public ResponseEntity<JWTResponse> login(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+		log.info("Received login request..");
+		if (!StringUtils.isEmpty(authHeader)) {
+			log.info(authHeader);
+			String[] tokens = authHeader.split(" ");
+			if (StringUtils.equals(tokens[0], "Basic")) {
 
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
+				String decodedAuthHeader = new String(Base64.getDecoder().decode(tokens[1]));
+				log.info("Decoded auth header: {}", decodedAuthHeader);
+				String[] credentials = decodedAuthHeader.split(":");
+				String username = credentials[0];
+				String password = credentials[1];
+				if (userService.isValidUser(username, password)) {
+					User user = userService.getUser(username);
+					String jwt = jwtService.getJwt(user);
+					return ResponseEntity
+							.ok(new JWTResponse(jwt, user.getFirstName(), user.getLastName(), user.getUsername()));
+				}
+			}
+			if (StringUtils.equals(tokens[0], "Bearer")) {
+				String jwt = new String(Base64.getDecoder().decode(tokens[1]));
+				if (jwtService.validate(jwt)) {
+					return ResponseEntity.ok().build();
+				}
+			}
 
-    @PostMapping("/signup")
-    public ResponseEntity<AppResponse> signup(@RequestBody User user) throws ApplicationException {
-        log.info("Received request..");
-        userService.createUser(user);
-        userEmailNotificationService.sendUserAccountValidationEmail(user);
-        AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
-                .message("User created successfully").build();
-        return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-    }
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
 
-    @PostMapping("/passwordReset")
-    public ResponseEntity<AppResponse> resetToken(@RequestBody StringObj email) {
-        log.info("Received generate reset token request...");
-        String emailAddress = email.getEmail();
-        userEmailNotificationService.sendPasswordResetEmail(emailAddress);
-        AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
-                .message("Password reset token has been generated for user with specified email address").build();
-        return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-    }
+	@PostMapping("/signup")
+	public ResponseEntity<AppResponse> signup(@RequestBody User user) throws ApplicationException {
+		log.info("Received request..");
+		userService.createUser(user);
+		userEmailNotificationService.sendUserAccountValidationEmail(user);
+		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+				.message("User created successfully").build();
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
 
-    @PostMapping("/changePassword")
-    public ResponseEntity<AppResponse> changePassword(@RequestBody ChangePasswordObj input) {
-        log.info("Received change password request...");
-        String email = input.getEmail();
-        String token = input.getResetToken();
-        String newPassword = input.getNewPassword();
-        if (userService.updatePassword(email, token, newPassword)) {
-            AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
-                    .message("changed user password.").build();
-            return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-        } else {
-            AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
-                    .message("did NOT change user password.").build();
-            return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-        }
-    }
+	@PostMapping("/passwordReset")
+	public ResponseEntity<AppResponse> resetToken(@RequestBody StringObj email) {
+		log.info("Received generate reset token request...");
+		String emailAddress = email.getEmail();
+		userEmailNotificationService.sendPasswordResetEmail(emailAddress);
+		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+				.message("Password reset token has been generated for user with specified email address").build();
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
 
-    @GetMapping("/home")
-    public ResponseEntity<String> home() {
-        return ResponseEntity.ok("Home page");
-    }
+	@PostMapping("/changePassword")
+	public ResponseEntity<AppResponse> changePassword(@RequestBody ChangePasswordObj input) {
+		log.info("Received change password request...");
+		String email = input.getEmail();
+		String token = input.getResetToken();
+		String newPassword = input.getNewPassword();
+		if (userService.updatePassword(email, token, newPassword)) {
+			AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+					.message("changed user password.").build();
+			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+		}
+		else {
+			AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+					.message("did NOT change user password.").build();
+			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+		}
+	}
+
+	@GetMapping("/home")
+	public ResponseEntity<String> home() {
+		return ResponseEntity.ok("Home page");
+	}
 
 }

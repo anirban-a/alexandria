@@ -17,49 +17,52 @@ import java.util.Properties;
 @Slf4j
 public class EmailService implements INotificationService<IEmailNotification> {
 
-    private final String password;
-    private final String sender;
+	private final String password;
 
-    public EmailService(@Value("${application.email.password}") String password, @Value("${application.email.accountId}") String sender) {
-        this.password = password;
-        this.sender = sender;
-    }
+	private final String sender;
 
-    public String sendSimpleEmail(Email details) {
-        sendNotification(details);
-        return "Mail Sent Successfully...";
-    }
+	public EmailService(@Value("${application.email.password}") String password,
+			@Value("${application.email.accountId}") String sender) {
+		this.password = password;
+		this.sender = sender;
+	}
 
-    @Override
-    public void sendNotification(IEmailNotification notification) {
-        // Try block to check for exceptions
-        try {
-            Properties prop = new Properties();
-            prop.setProperty("mail.host", "smtp.gmail.com");
-            prop.setProperty("mail.transport.protocol", "smtp");
-            prop.setProperty("mail.smtp.auth", "true");
-            prop.setProperty("mail.smtp.starttls.enable", "true");
-            prop.setProperty("mail.debug", "true");
-            prop.setProperty("mail.smtp.ssl.enable", "true");
-            prop.setProperty("mail.test-connection", "true");
+	public String sendSimpleEmail(Email details) {
+		sendNotification(details);
+		return "Mail Sent Successfully...";
+	}
 
-            Session session = Session.getInstance(prop);
-            MimeMessage message = new MimeMessage(session);
+	@Override
+	public void sendNotification(IEmailNotification notification) {
+		// Try block to check for exceptions
+		try {
+			Properties prop = new Properties();
+			prop.setProperty("mail.host", "smtp.gmail.com");
+			prop.setProperty("mail.transport.protocol", "smtp");
+			prop.setProperty("mail.smtp.auth", "true");
+			prop.setProperty("mail.smtp.starttls.enable", "true");
+			prop.setProperty("mail.debug", "true");
+			prop.setProperty("mail.smtp.ssl.enable", "true");
+			prop.setProperty("mail.test-connection", "true");
 
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(sender);
-            helper.setTo(notification.getRecipient());
-            helper.setSubject(notification.getSubject());
-            helper.setText(notification.getMessage());
+			Session session = Session.getInstance(prop);
+			MimeMessage message = new MimeMessage(session);
 
-            // Sending the mail
-            Transport.send(message, sender, password);
+			MimeMessageHelper helper = new MimeMessageHelper(message, true);
+			helper.setFrom(sender);
+			helper.setTo(notification.getRecipient());
+			helper.setSubject(notification.getSubject());
+			helper.setText(notification.getMessage());
 
-        }
+			// Sending the mail
+			Transport.send(message, sender, password);
 
-        // Catch block to handle the exceptions
-        catch (Exception e) {
-            throw new ApplicationException(e.getMessage());
-        }
-    }
+		}
+
+		// Catch block to handle the exceptions
+		catch (Exception e) {
+			throw new ApplicationException(e.getMessage());
+		}
+	}
+
 }

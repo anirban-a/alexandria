@@ -8,9 +8,11 @@ import org.springframework.data.annotation.Id;
 @Data
 @Container(containerName = "email_validation_code")
 public class EmailValidationCode {
-    @Id
-    @PartitionKey
-    String userId;
 
-    String validationCode;
+	@Id
+	@PartitionKey
+	String userId;
+
+	String validationCode;
+
 }
