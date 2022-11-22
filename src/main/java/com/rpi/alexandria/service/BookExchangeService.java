@@ -56,7 +56,6 @@ public class BookExchangeService implements IBookExchangeService {
 //		bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
 
 		deleteTransaction(exchange);
-		deleteTransaction(otherPartyExchange);
 	}
 
 }
