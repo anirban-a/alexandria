@@ -54,12 +54,11 @@ public class BookExchangeController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
-	@DeleteMapping
-	public ResponseEntity<AppResponse<Void>> deleteExchange(@RequestBody Exchange exchange) {
-		log.info("Received book exchange delete request");
-		bookExchangeService.deleteTransaction(exchange);
-		AppResponse<Void> appResponse = buildAppResponse("Book exchange deleted successfully", HttpStatus.OK);
-		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-	}
-
+//	@DeleteMapping("/")
+//	public ResponseEntity<AppResponse<Void>> deleteExchange(@PathVariable Exchange exchange) {
+//		log.info("Received book exchange delete request");
+//		bookExchangeService.deleteTransaction(exchange);
+//		AppResponse<Void> appResponse = buildAppResponse("Book exchange deleted successfully", HttpStatus.OK);
+//		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+//	}
 }
