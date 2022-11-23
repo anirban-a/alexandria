@@ -5,6 +5,7 @@ import com.rpi.alexandria.controller.response.JWTResponse;
 import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.ChangePasswordObj;
 import com.rpi.alexandria.model.StringObj;
+import com.rpi.alexandria.model.UserAccountValidationDetails;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.service.EmailService;
 import com.rpi.alexandria.service.UserEmailNotificationService;
@@ -109,6 +110,20 @@ public class ApplicationController {
 					.message("did NOT change user password.").build();
 			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 		}
+	}
+
+	@PostMapping("/verifyUser")
+	public ResponseEntity<AppResponse> validateEmailAccount(
+			@RequestBody UserAccountValidationDetails validationDetails) {
+		log.info("Received change password request...");
+		if (userService.updateAccountStatus(validationDetails.getEmail(), validationDetails.getValidationCode())) {
+			AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
+					.message("Account validated successfully").build();
+			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+		}
+		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now())
+				.httpStatus(HttpStatus.BAD_REQUEST).message("Account couldn't be validated").build();
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
 	@GetMapping("/home")

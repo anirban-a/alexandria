@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,9 +34,8 @@ public class UserEmailNotificationService {
 	final ExecutorService threadPool = Executors.newCachedThreadPool();
 
 	public void sendUserAccountValidationEmail(User user) {
-		String randomText = String.valueOf(OffsetDateTime.now().toInstant().toEpochMilli());
+		String code = RandomStringUtils.random(5, false, true);
 
-		String code = passwordEncoder.encode(randomText);
 		EmailValidationCode validationCode = new EmailValidationCode();
 		validationCode.setUserId(user.getUsername());
 		validationCode.setValidationCode(code);

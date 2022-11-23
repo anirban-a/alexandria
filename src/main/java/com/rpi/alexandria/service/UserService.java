@@ -5,6 +5,7 @@ import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.Rating;
 import com.rpi.alexandria.model.University;
 import com.rpi.alexandria.model.User;
+import com.rpi.alexandria.repository.EmailValidationCodeRepository;
 import com.rpi.alexandria.repository.UniversityRepository;
 import com.rpi.alexandria.repository.UserRepository;
 import com.rpi.alexandria.service.security.UserDetailsService;
@@ -36,6 +37,8 @@ public class UserService implements UserDetailsService {
 
 	PasswordEncoder passwordEncoder;
 
+	EmailValidationCodeRepository emailValidationCodeRepository;
+
 	public void createUser(final User user) throws ApplicationException {
 		if (userRepository.findById(user.getUsername(), new PartitionKey(user.getUsername())).isPresent()) {
 			throw new ApplicationException(
@@ -59,6 +62,29 @@ public class UserService implements UserDetailsService {
 		user.setUniversity(universityOptional.get());
 		userRepository.save(user);
 		log.info("User saved into DB");
+	}
+
+	public boolean updateAccountStatus(String userId, String validationCode) {
+		var validationEntity = emailValidationCodeRepository.findById(userId);
+		if (validationEntity.isPresent() && validationEntity.get().getValidationCode().equals(validationCode)) {
+			log.info("validation code found in DB");
+			var userEntity = userRepository.findById(userId, new PartitionKey(userId));
+			if (userEntity.isPresent()) {
+				log.info("User found");
+				var user = userEntity.get();
+				user.setIsVerified(true);
+				userRepository.save(user);
+				log.info("Updated user account status to verified");
+				return true;
+			}
+			throw new ApplicationException("User not found");
+		}
+		if (validationCode.isEmpty()) {
+			log.error("Validation code not found in DB");
+			throw new ApplicationException("Computed validation code not found");
+		}
+		log.error("Validation code not matching with the one in DB");
+		return false;
 	}
 
 	// generate random n-char long alphanumeric(all caps) string
