@@ -82,7 +82,8 @@ public class BookExchangeServiceTest {
 				.anyMatch(id -> id.equals(exchange.getFirstPartyId())));
 		assertEquals(0, exchangeList.stream().filter(Exchange::getCompleted).count());
 
-		assertEquals(2, exchangeList.stream().map(Exchange::getInitiatorId).filter(Predicate.isEqual(firstPartyId)).count());
+		assertEquals(2,
+				exchangeList.stream().map(Exchange::getInitiatorId).filter(Predicate.isEqual(firstPartyId)).count());
 	}
 
 	@Test

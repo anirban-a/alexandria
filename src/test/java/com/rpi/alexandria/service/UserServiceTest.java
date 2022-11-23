@@ -2,6 +2,7 @@ package com.rpi.alexandria.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rpi.alexandria.model.User;
+import com.rpi.alexandria.repository.EmailValidationCodeRepository;
 import com.rpi.alexandria.repository.UniversityRepository;
 import com.rpi.alexandria.repository.UserRepository;
 import org.apache.commons.io.IOUtils;
@@ -36,6 +37,8 @@ public class UserServiceTest {
 
 	UniversityRepository universityRepository = Mockito.mock(UniversityRepository.class);
 
+	EmailValidationCodeRepository emailValidationCodeRepository = Mockito.mock(EmailValidationCodeRepository.class);
+
 	ObjectMapper objectMapper = new ObjectMapper();
 
 	@Mock
@@ -43,7 +46,8 @@ public class UserServiceTest {
 
 	@BeforeAll
 	void setup() {
-		userService = new UserService(userRepository, universityRepository, new BCryptPasswordEncoder());
+		userService = new UserService(userRepository, universityRepository, new BCryptPasswordEncoder(),
+				emailValidationCodeRepository);
 	}
 
 	@Test

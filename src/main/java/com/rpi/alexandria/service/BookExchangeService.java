@@ -53,7 +53,7 @@ public class BookExchangeService implements IBookExchangeService {
 				.orElseThrow(() -> new ApplicationException(
 						String.format("No such exchange by id %s found for other party", id)));
 		otherPartyExchange.setCompleted(true);
-//		bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
+		// bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
 
 		deleteTransaction(exchange);
 	}
