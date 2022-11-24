@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -20,12 +21,15 @@ import java.util.List;
 public class BookExchangeService implements IBookExchangeService {
 
 	BookExchangeRepository bookExchangeRepository;
+	BookService bookService;
 
 	@Override
 	public void createTransaction(Exchange transaction) {
 		transaction.computeId();
 		Exchange otherPartyExchange = transaction.deriveOtherPartyExchange();
-		bookExchangeRepository.saveAll(List.of(transaction, otherPartyExchange));
+		List<Exchange> transactions = List.of(transaction, otherPartyExchange);
+		transactions.stream().map(Exchange::getFirstPartyBookId).forEach(bookId-> bookService.setBookStatus(bookId, 1));
+		bookExchangeRepository.saveAll(transactions);
 	}
 
 	@Override
@@ -54,7 +58,9 @@ public class BookExchangeService implements IBookExchangeService {
 						String.format("No such exchange by id %s found for other party", id)));
 		otherPartyExchange.setCompleted(true);
 		// bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
-
+		List<Exchange> exchangeList = List.of(exchange, otherPartyExchange);
+		exchangeList.stream().map(Exchange::getFirstPartyBookId).forEach(bookId-> bookService.setBookStatus(bookId, 2));
+//		bookService.setBookStatus(id, 2);
 		deleteTransaction(exchange);
 	}
 

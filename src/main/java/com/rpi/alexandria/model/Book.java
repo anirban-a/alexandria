@@ -1,7 +1,9 @@
 package com.rpi.alexandria.model;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString
 @Document(indexName = "book")
 public class Book {
@@ -52,6 +55,16 @@ public class Book {
 
 	@Field(type = FieldType.Nested)
 	User listedBy; // internal property.
+
+	@Field(type = FieldType.Integer)
+	Integer status=0;
+
+	public void setStatus(Integer status) {
+		if(status<0 || status>2){
+			throw new IllegalArgumentException("Invalid Book status provided, must be in the range of [0,2]");
+		}
+		this.status = status;
+	}
 
 	public void setCondition(String condition) {
 		if (!conditionMap.containsKey(condition)) {

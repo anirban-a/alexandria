@@ -1,8 +1,12 @@
 package com.rpi.alexandria.controller;
 
 import com.rpi.alexandria.controller.response.AppResponse;
+import com.rpi.alexandria.dto.BookDTO;
+import com.rpi.alexandria.dto.ExchangeDTO;
+import com.rpi.alexandria.model.Book;
 import com.rpi.alexandria.model.Exchange;
 import com.rpi.alexandria.service.BookExchangeService;
+import com.rpi.alexandria.service.BookService;
 import com.rpi.alexandria.service.ITransactableBookService;
 import com.rpi.alexandria.service.UserService;
 import lombok.AccessLevel;
@@ -13,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/book/exchange")
@@ -22,18 +27,27 @@ import java.util.List;
 public class BookExchangeController extends BaseController {
 
 	ITransactableBookService<Exchange> bookExchangeService;
+	BookService bookService;
 
-	public BookExchangeController(UserService userService, BookExchangeService bookExchangeService) {
+	public BookExchangeController(UserService userService, BookExchangeService bookExchangeService, BookService bookService) {
 		super(userService);
 		this.bookExchangeService = bookExchangeService;
+		this.bookService = bookService;
 	}
 
 	@GetMapping
-	public ResponseEntity<AppResponse<List<Exchange>>> getAllExchange() {
+	public ResponseEntity<AppResponse<List<ExchangeDTO>>> getAllExchange() {
 		String username = getUser().getUsername();
 		List<Exchange> exchangeList = bookExchangeService.getAllTransactionsByUserId(username);
-		AppResponse<List<Exchange>> appResponse = buildAppResponse("", HttpStatus.OK);
-		appResponse.setData(exchangeList);
+		List<ExchangeDTO> exchangeDTOList = exchangeList.stream().map(ExchangeDTO::of).collect(Collectors.toList());
+		exchangeDTOList.forEach(exchangeDTO ->{
+			Book firstPartyBook = bookService.findById(exchangeDTO.getFirstPartyBookId());
+			Book otherPartyBook = bookService.findById(exchangeDTO.getOtherPartyBookId());
+			exchangeDTO.setFirstPartyBookDetails(BookDTO.of(firstPartyBook));
+			exchangeDTO.setOtherPartyBookDetails(BookDTO.of(otherPartyBook));
+		});
+		AppResponse<List<ExchangeDTO>> appResponse = buildAppResponse("", HttpStatus.OK);
+		appResponse.setData(exchangeDTOList);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 

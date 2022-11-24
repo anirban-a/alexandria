@@ -51,6 +51,12 @@ public class BookService {
 				.orElseThrow(() -> new ApplicationException(String.format("No such book by id: %s found", id)));
 	}
 
+	public void setBookStatus(String id, int bookStatus){
+		Book book = findById(id);
+		book.setStatus(bookStatus);
+		bookRepository.save(book);
+	}
+
 	public void deleteById(String id) {
 		bookRepository.deleteById(id);
 	}
