@@ -98,7 +98,7 @@ public class ApplicationController {
 		String emailAddress = email.getEmail();
 		userEmailNotificationService.sendPasswordResetEmail(emailAddress);
 		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
-				.message("Password reset token has been generated for user with specified email address").build();
+				.message("Password reset token has been generated for user with spe	cified email address").build();
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 

@@ -12,11 +12,13 @@ import com.rpi.alexandria.service.UserService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,12 +42,17 @@ public class BookExchangeController extends BaseController {
 		String username = getUser().getUsername();
 		List<Exchange> exchangeList = bookExchangeService.getAllTransactionsByUserId(username);
 		List<ExchangeDTO> exchangeDTOList = exchangeList.stream().map(ExchangeDTO::of).collect(Collectors.toList());
-		exchangeDTOList.forEach(exchangeDTO ->{
-			Book firstPartyBook = bookService.findById(exchangeDTO.getFirstPartyBookId());
-			Book otherPartyBook = bookService.findById(exchangeDTO.getOtherPartyBookId());
-			exchangeDTO.setFirstPartyBookDetails(BookDTO.of(firstPartyBook));
-			exchangeDTO.setOtherPartyBookDetails(BookDTO.of(otherPartyBook));
-		});
+		exchangeDTOList
+				.forEach(exchangeDTO ->{
+					if(Objects.nonNull(exchangeDTO.getFirstPartyBookId())){
+						Book firstPartyBook = bookService.findById(exchangeDTO.getFirstPartyBookId());
+						exchangeDTO.setFirstPartyBookDetails(BookDTO.of(firstPartyBook));
+					}
+					if(Objects.nonNull(exchangeDTO.getOtherPartyBookId())){
+						Book otherPartyBook = bookService.findById(exchangeDTO.getOtherPartyBookId());
+						exchangeDTO.setOtherPartyBookDetails(BookDTO.of(otherPartyBook));
+					}
+				});
 		AppResponse<List<ExchangeDTO>> appResponse = buildAppResponse("", HttpStatus.OK);
 		appResponse.setData(exchangeDTOList);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());

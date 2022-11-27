@@ -9,9 +9,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -28,7 +31,9 @@ public class BookExchangeService implements IBookExchangeService {
 		transaction.computeId();
 		Exchange otherPartyExchange = transaction.deriveOtherPartyExchange();
 		List<Exchange> transactions = List.of(transaction, otherPartyExchange);
-		transactions.stream().map(Exchange::getFirstPartyBookId).forEach(bookId-> bookService.setBookStatus(bookId, 1));
+		transactions.stream().map(Exchange::getFirstPartyBookId)
+				.filter(ObjectUtils::isNotEmpty)
+				.forEach(bookId-> bookService.setBookStatus(bookId, 1));
 		bookExchangeRepository.saveAll(transactions);
 	}
 
@@ -59,7 +64,9 @@ public class BookExchangeService implements IBookExchangeService {
 		otherPartyExchange.setCompleted(true);
 		// bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
 		List<Exchange> exchangeList = List.of(exchange, otherPartyExchange);
-		exchangeList.stream().map(Exchange::getFirstPartyBookId).forEach(bookId-> bookService.setBookStatus(bookId, 2));
+		exchangeList.stream()
+				.filter(ex->Objects.nonNull(ex.getFirstPartyBookId()))
+				.map(Exchange::getFirstPartyBookId).forEach(bookId-> bookService.setBookStatus(bookId, 2));
 //		bookService.setBookStatus(id, 2);
 		deleteTransaction(exchange);
 	}
