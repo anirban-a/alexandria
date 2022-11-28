@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface IBookExchangeService extends ITransactableBookService<Exchange> {
 
+	void rejectTransaction(String id, String username);
+
 }

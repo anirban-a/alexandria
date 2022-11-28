@@ -3,10 +3,8 @@ package com.rpi.alexandria.controller;
 import com.rpi.alexandria.controller.response.AppResponse;
 import com.rpi.alexandria.controller.response.JWTResponse;
 import com.rpi.alexandria.exception.ApplicationException;
-import com.rpi.alexandria.model.ChangePasswordObj;
-import com.rpi.alexandria.model.StringObj;
-import com.rpi.alexandria.model.UserAccountValidationDetails;
-import com.rpi.alexandria.model.User;
+import com.rpi.alexandria.model.*;
+import com.rpi.alexandria.repository.UniversityRepository;
 import com.rpi.alexandria.service.EmailService;
 import com.rpi.alexandria.service.UserEmailNotificationService;
 import com.rpi.alexandria.service.UserService;
@@ -24,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/")
@@ -36,6 +36,8 @@ public class ApplicationController {
 	UserService userService;
 
 	UserEmailNotificationService userEmailNotificationService;
+
+	UniversityRepository universityRepository;
 
 	JwtService jwtService;
 
@@ -84,13 +86,21 @@ public class ApplicationController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
+	@GetMapping("/universities")
+	public ResponseEntity<AppResponse<List<University>>> loadUniversities() {
+		List<University> universities = universityRepository.findAll();
+		AppResponse<List<University>> response = new AppResponse<>("", OffsetDateTime.now(), HttpStatus.OK, "",
+				universities);
+		return new ResponseEntity<>(response, response.getHttpStatus());
+	}
+
 	@PostMapping("/passwordReset")
 	public ResponseEntity<AppResponse> resetToken(@RequestBody StringObj email) {
 		log.info("Received generate reset token request...");
 		String emailAddress = email.getEmail();
 		userEmailNotificationService.sendPasswordResetEmail(emailAddress);
 		AppResponse appResponse = AppResponse.builder().dateTime(OffsetDateTime.now()).httpStatus(HttpStatus.OK)
-				.message("Password reset token has been generated for user with specified email address").build();
+				.message("Password reset token has been generated for user with spe	cified email address").build();
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 

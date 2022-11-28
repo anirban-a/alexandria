@@ -34,7 +34,8 @@ public class BookDTO implements Mappable<Book> {
 
 	String owner;
 
-	Integer status=0;
+	Integer status = 0;
+
 	public static BookDTO of(Book book) {
 		return new BookDTO(book.getId(), book.getIsbn(), book.getName(), book.getCondition(), book.getDescription(),
 				book.getForExchange(), book.getForGiveAway(), book.getListedBy().getUsername(), book.getStatus());

@@ -9,26 +9,25 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExchangeDTO {
 
-    String id;
+	String id;
 
-    String firstPartyId;
+	String firstPartyId;
 
-    String otherPartyId;
+	String otherPartyId;
 
-    String firstPartyBookId;
+	String firstPartyBookId;
 
 	String otherPartyBookId;
 
-    BookDTO firstPartyBookDetails;
+	BookDTO firstPartyBookDetails;
 
-    BookDTO otherPartyBookDetails;
+	BookDTO otherPartyBookDetails;
 
 	Boolean completed = false;
 
 	String initiatorId;
 
-
-	public static ExchangeDTO of(Exchange exchange){
+	public static ExchangeDTO of(Exchange exchange) {
 		ExchangeDTO exchangeDTO = new ExchangeDTO();
 		exchangeDTO.setId(exchange.getId());
 		exchangeDTO.setFirstPartyId(exchange.getFirstPartyId());
@@ -40,4 +39,5 @@ public class ExchangeDTO {
 
 		return exchangeDTO;
 	}
+
 }
