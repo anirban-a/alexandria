@@ -57,10 +57,10 @@ public class Book {
 	User listedBy; // internal property.
 
 	@Field(type = FieldType.Integer)
-	Integer status=0;
+	Integer status = 0;
 
 	public void setStatus(Integer status) {
-		if(status<0 || status>2){
+		if (status < 0 || status > 2) {
 			throw new IllegalArgumentException("Invalid Book status provided, must be in the range of [0,2]");
 		}
 		this.status = status;

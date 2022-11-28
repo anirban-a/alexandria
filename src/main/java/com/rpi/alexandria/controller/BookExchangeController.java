@@ -5,10 +5,7 @@ import com.rpi.alexandria.dto.BookDTO;
 import com.rpi.alexandria.dto.ExchangeDTO;
 import com.rpi.alexandria.model.Book;
 import com.rpi.alexandria.model.Exchange;
-import com.rpi.alexandria.service.BookExchangeService;
-import com.rpi.alexandria.service.BookService;
-import com.rpi.alexandria.service.ITransactableBookService;
-import com.rpi.alexandria.service.UserService;
+import com.rpi.alexandria.service.*;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +25,12 @@ import java.util.stream.Collectors;
 @CrossOrigin("http://localhost:${ui.port}")
 public class BookExchangeController extends BaseController {
 
-	ITransactableBookService<Exchange> bookExchangeService;
+	IBookExchangeService bookExchangeService;
+
 	BookService bookService;
 
-	public BookExchangeController(UserService userService, BookExchangeService bookExchangeService, BookService bookService) {
+	public BookExchangeController(UserService userService, BookExchangeService bookExchangeService,
+			BookService bookService) {
 		super(userService);
 		this.bookExchangeService = bookExchangeService;
 		this.bookService = bookService;
@@ -42,17 +41,16 @@ public class BookExchangeController extends BaseController {
 		String username = getUser().getUsername();
 		List<Exchange> exchangeList = bookExchangeService.getAllTransactionsByUserId(username);
 		List<ExchangeDTO> exchangeDTOList = exchangeList.stream().map(ExchangeDTO::of).collect(Collectors.toList());
-		exchangeDTOList
-				.forEach(exchangeDTO ->{
-					if(Objects.nonNull(exchangeDTO.getFirstPartyBookId())){
-						Book firstPartyBook = bookService.findById(exchangeDTO.getFirstPartyBookId());
-						exchangeDTO.setFirstPartyBookDetails(BookDTO.of(firstPartyBook));
-					}
-					if(Objects.nonNull(exchangeDTO.getOtherPartyBookId())){
-						Book otherPartyBook = bookService.findById(exchangeDTO.getOtherPartyBookId());
-						exchangeDTO.setOtherPartyBookDetails(BookDTO.of(otherPartyBook));
-					}
-				});
+		exchangeDTOList.forEach(exchangeDTO -> {
+			if (Objects.nonNull(exchangeDTO.getFirstPartyBookId())) {
+				Book firstPartyBook = bookService.findById(exchangeDTO.getFirstPartyBookId());
+				exchangeDTO.setFirstPartyBookDetails(BookDTO.of(firstPartyBook));
+			}
+			if (Objects.nonNull(exchangeDTO.getOtherPartyBookId())) {
+				Book otherPartyBook = bookService.findById(exchangeDTO.getOtherPartyBookId());
+				exchangeDTO.setOtherPartyBookDetails(BookDTO.of(otherPartyBook));
+			}
+		});
 		AppResponse<List<ExchangeDTO>> appResponse = buildAppResponse("", HttpStatus.OK);
 		appResponse.setData(exchangeDTOList);
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
@@ -75,6 +73,14 @@ public class BookExchangeController extends BaseController {
 		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
 	}
 
+	@DeleteMapping("/reject/{id}")
+	public ResponseEntity<AppResponse<Void>> reject(@PathVariable String id) {
+		log.info("Received book exchange reject request");
+		String username = getUser().getUsername();
+		bookExchangeService.rejectTransaction(id, username);
+		AppResponse<Void> appResponse = buildAppResponse("Book exchange marked complete successfully", HttpStatus.OK);
+		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+	}
 	// @DeleteMapping("/")
 	// public ResponseEntity<AppResponse<Void>> deleteExchange(@PathVariable Exchange
 	// exchange) {

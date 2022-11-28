@@ -38,6 +38,7 @@ public class ApplicationController {
 	UserEmailNotificationService userEmailNotificationService;
 
 	UniversityRepository universityRepository;
+
 	JwtService jwtService;
 
 	EmailService emailService;
@@ -86,9 +87,10 @@ public class ApplicationController {
 	}
 
 	@GetMapping("/universities")
-	public ResponseEntity<AppResponse<List<University>>> loadUniversities(){
+	public ResponseEntity<AppResponse<List<University>>> loadUniversities() {
 		List<University> universities = universityRepository.findAll();
-		AppResponse<List<University>> response= new AppResponse<>("", OffsetDateTime.now(), HttpStatus.OK, "", universities);
+		AppResponse<List<University>> response = new AppResponse<>("", OffsetDateTime.now(), HttpStatus.OK, "",
+				universities);
 		return new ResponseEntity<>(response, response.getHttpStatus());
 	}
 

@@ -43,10 +43,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		}).and();
 
 		http.authorizeHttpRequests().antMatchers("/api/login").permitAll().antMatchers("/api/signup").permitAll()
-				.antMatchers("/api/universities").permitAll()
-				.antMatchers("/api/passwordReset").permitAll().antMatchers("/api/changePassword").permitAll()
-				.antMatchers("/api/verifyUser").permitAll().antMatchers("/email/sendMail").permitAll()
-				.antMatchers("/email/test").permitAll().anyRequest().authenticated();
+				.antMatchers("/api/universities").permitAll().antMatchers("/api/passwordReset").permitAll()
+				.antMatchers("/api/changePassword").permitAll().antMatchers("/api/verifyUser").permitAll()
+				.antMatchers("/email/sendMail").permitAll().antMatchers("/email/test").permitAll().anyRequest()
+				.authenticated();
 
 		// Add JWT token filter
 		http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

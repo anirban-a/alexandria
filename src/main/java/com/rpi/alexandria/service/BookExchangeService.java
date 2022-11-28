@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class BookExchangeService implements IBookExchangeService {
 
 	BookExchangeRepository bookExchangeRepository;
+
 	BookService bookService;
 
 	@Override
@@ -31,9 +32,8 @@ public class BookExchangeService implements IBookExchangeService {
 		transaction.computeId();
 		Exchange otherPartyExchange = transaction.deriveOtherPartyExchange();
 		List<Exchange> transactions = List.of(transaction, otherPartyExchange);
-		transactions.stream().map(Exchange::getFirstPartyBookId)
-				.filter(ObjectUtils::isNotEmpty)
-				.forEach(bookId-> bookService.setBookStatus(bookId, 1));
+		transactions.stream().map(Exchange::getFirstPartyBookId).filter(ObjectUtils::isNotEmpty)
+				.forEach(bookId -> bookService.setBookStatus(bookId, 1));
 		bookExchangeRepository.saveAll(transactions);
 	}
 
@@ -64,11 +64,28 @@ public class BookExchangeService implements IBookExchangeService {
 		otherPartyExchange.setCompleted(true);
 		// bookExchangeRepository.saveAll(List.of(exchange, otherPartyExchange));
 		List<Exchange> exchangeList = List.of(exchange, otherPartyExchange);
-		exchangeList.stream()
-				.filter(ex->Objects.nonNull(ex.getFirstPartyBookId()))
-				.map(Exchange::getFirstPartyBookId).forEach(bookId-> bookService.setBookStatus(bookId, 2));
-//		bookService.setBookStatus(id, 2);
+		exchangeList.stream().filter(ex -> Objects.nonNull(ex.getFirstPartyBookId())).map(Exchange::getFirstPartyBookId)
+				.forEach(bookId -> bookService.setBookStatus(bookId, 2));
+		// bookService.setBookStatus(id, 2);
 		deleteTransaction(exchange);
+	}
+
+	public void rejectTransaction(String id, String userId) {
+		Exchange exchange = bookExchangeRepository.findById(id, new PartitionKey(userId))
+				.orElseThrow(() -> new ApplicationException(String.format("No such exchange by id %s found", id)));
+
+		String otherPartyExchangeId = exchange.getId().split("_")[0] + "_" + exchange.getOtherPartyId();
+		log.info(otherPartyExchangeId);
+		Exchange otherPartyExchange = bookExchangeRepository
+				.findById(otherPartyExchangeId, new PartitionKey(exchange.getOtherPartyId()))
+				.orElseThrow(() -> new ApplicationException(
+						String.format("No such exchange by id %s found for other party", id)));
+
+		List<Exchange> exchangeList = List.of(exchange, otherPartyExchange);
+		exchangeList.stream().filter(ex -> Objects.nonNull(ex.getFirstPartyBookId())).map(Exchange::getFirstPartyBookId)
+				.forEach(bookId -> bookService.setBookStatus(bookId, 0));
+		deleteTransaction(exchange);
+		log.info("Reversed transaction.");
 	}
 
 }
