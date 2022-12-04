@@ -1,5 +1,6 @@
 # Alexandria
-<hr>
+
+Front-end can be found [here](https://github.com/JessHua159/alexandria-ui).
 
 ## Setup
 1. Install IntelliJ CE.
