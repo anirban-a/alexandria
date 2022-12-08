@@ -9,35 +9,35 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExchangeDTO {
 
-	String id;
+  String id;
 
-	String firstPartyId;
+  String firstPartyId;
 
-	String otherPartyId;
+  String otherPartyId;
 
-	String firstPartyBookId;
+  String firstPartyBookId;
 
-	String otherPartyBookId;
+  String otherPartyBookId;
 
-	BookDTO firstPartyBookDetails;
+  BookDTO firstPartyBookDetails;
 
-	BookDTO otherPartyBookDetails;
+  BookDTO otherPartyBookDetails;
 
-	Boolean completed = false;
+  Boolean completed = false;
 
-	String initiatorId;
+  String initiatorId;
 
-	public static ExchangeDTO of(Exchange exchange) {
-		ExchangeDTO exchangeDTO = new ExchangeDTO();
-		exchangeDTO.setId(exchange.getId());
-		exchangeDTO.setFirstPartyId(exchange.getFirstPartyId());
-		exchangeDTO.setOtherPartyId(exchange.getOtherPartyId());
-		exchangeDTO.setFirstPartyBookId(exchange.getFirstPartyBookId());
-		exchangeDTO.setOtherPartyBookId(exchange.getOtherPartyBookId());
-		exchangeDTO.setCompleted(exchange.getCompleted());
-		exchangeDTO.setInitiatorId(exchange.getInitiatorId());
+  public static ExchangeDTO of(Exchange exchange) {
+    ExchangeDTO exchangeDTO = new ExchangeDTO();
+    exchangeDTO.setId(exchange.getId());
+    exchangeDTO.setFirstPartyId(exchange.getFirstPartyId());
+    exchangeDTO.setOtherPartyId(exchange.getOtherPartyId());
+    exchangeDTO.setFirstPartyBookId(exchange.getFirstPartyBookId());
+    exchangeDTO.setOtherPartyBookId(exchange.getOtherPartyBookId());
+    exchangeDTO.setCompleted(exchange.getCompleted());
+    exchangeDTO.setInitiatorId(exchange.getInitiatorId());
 
-		return exchangeDTO;
-	}
+    return exchangeDTO;
+  }
 
 }

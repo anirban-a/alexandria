@@ -4,6 +4,8 @@ import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.model.Book;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.repository.BookRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,63 +20,61 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @Slf4j
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookService {
 
-	BookRepository bookRepository;
+  BookRepository bookRepository;
 
-	ElasticsearchOperations elasticsearchOperations;
+  ElasticsearchOperations elasticsearchOperations;
 
-	/**
-	 * @param user
-	 * @param book
-	 * @implNote This API will add a book to a central book index.
-	 */
-	public void addBook(User user, Book book) {
-		book.setId(computeBookId(user, book));
-		book.setListedBy(user);
-		bookRepository.save(book);
-	}
+  /**
+   * @param user
+   * @param book
+   * @implNote This API will add a book to a central book index.
+   */
+  public void addBook(User user, Book book) {
+    book.setId(computeBookId(user, book));
+    book.setListedBy(user);
+    bookRepository.save(book);
+  }
 
-	public List<Book> findByISBN(String isbn) {
-		return bookRepository.findByIsbn(isbn);
-	}
+  public List<Book> findByISBN(String isbn) {
+    return bookRepository.findByIsbn(isbn);
+  }
 
-	public Book findById(String id) {
-		return bookRepository.findById(id)
-				.orElseThrow(() -> new ApplicationException(String.format("No such book by id: %s found", id)));
-	}
+  public Book findById(String id) {
+    return bookRepository.findById(id)
+        .orElseThrow(
+            () -> new ApplicationException(String.format("No such book by id: %s found", id)));
+  }
 
-	public void setBookStatus(String id, int bookStatus) {
-		Book book = findById(id);
-		book.setStatus(bookStatus);
-		bookRepository.save(book);
-	}
+  public void setBookStatus(String id, int bookStatus) {
+    Book book = findById(id);
+    book.setStatus(bookStatus);
+    bookRepository.save(book);
+  }
 
-	public void deleteById(String id) {
-		bookRepository.deleteById(id);
-	}
+  public void deleteById(String id) {
+    bookRepository.deleteById(id);
+  }
 
-	public List<Book> findAllBooksByName(String name) {
-		MatchPhraseQueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("name", name);
-		Query searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
-		SearchHits<Book> bookSearchHit = elasticsearchOperations.search(searchQuery, Book.class,
-				IndexCoordinates.of("book"));
-		return bookSearchHit.stream().map(SearchHit::getContent).collect(Collectors.toList());
-	}
+  public List<Book> findAllBooksByName(String name) {
+    MatchPhraseQueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("name", name);
+    Query searchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
+    SearchHits<Book> bookSearchHit = elasticsearchOperations.search(searchQuery, Book.class,
+        IndexCoordinates.of("book"));
+    return bookSearchHit.stream().map(SearchHit::getContent).collect(Collectors.toList());
+  }
 
-	public List<Book> findAllBooksForUser(String username) {
-		return bookRepository.findAllByListedByUsername(username);
-	}
+  public List<Book> findAllBooksForUser(String username) {
+    return bookRepository.findAllByListedByUsername(username);
+  }
 
-	private String computeBookId(User user, Book book) {
-		return String.format("%s_%s", user.hashCode(), book.getIsbn());
-	}
+  private String computeBookId(User user, Book book) {
+    return String.format("%s_%s", user.hashCode(), book.getIsbn());
+  }
 
 }

@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StringObj {
 
-	private String email;
+  private String email;
 
 }

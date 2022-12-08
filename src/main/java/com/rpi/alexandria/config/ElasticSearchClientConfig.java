@@ -11,12 +11,13 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @EnableElasticsearchRepositories
 public class ElasticSearchClientConfig extends AbstractElasticsearchConfiguration {
 
-	@Override
-	public RestHighLevelClient elasticsearchClient() {
-		final ClientConfiguration clientConfiguration = ClientConfiguration.builder().connectedTo("localhost:9200")
-				.build();
+  @Override
+  public RestHighLevelClient elasticsearchClient() {
+    final ClientConfiguration clientConfiguration = ClientConfiguration.builder()
+        .connectedTo("localhost:9200")
+        .build();
 
-		return RestClients.create(clientConfiguration).rest();
-	}
+    return RestClients.create(clientConfiguration).rest();
+  }
 
 }

@@ -1,13 +1,12 @@
 package com.rpi.alexandria.dto;
 
 import com.rpi.alexandria.model.Book;
+import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-
-import javax.validation.constraints.NotBlank;
 
 @Data
 @ToString
@@ -15,42 +14,44 @@ import javax.validation.constraints.NotBlank;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookDTO implements Mappable<Book> {
 
-	String id;
+  String id;
 
-	@NotBlank(message = "ISBN is mandatory")
-	String isbn;
+  @NotBlank(message = "ISBN is mandatory")
+  String isbn;
 
-	@NotBlank(message = "Book name is mandatory")
-	String name;
+  @NotBlank(message = "Book name is mandatory")
+  String name;
 
-	@NotBlank(message = "Book condition is mandatory")
-	String condition;
+  @NotBlank(message = "Book condition is mandatory")
+  String condition;
 
-	String description;
+  String description;
 
-	Boolean forExchange;
+  Boolean forExchange;
 
-	Boolean forGiveAway;
+  Boolean forGiveAway;
 
-	String owner;
+  String owner;
 
-	Integer status = 0;
+  Integer status = 0;
 
-	public static BookDTO of(Book book) {
-		return new BookDTO(book.getId(), book.getIsbn(), book.getName(), book.getCondition(), book.getDescription(),
-				book.getForExchange(), book.getForGiveAway(), book.getListedBy().getUsername(), book.getStatus());
-	}
+  public static BookDTO of(Book book) {
+    return new BookDTO(book.getId(), book.getIsbn(), book.getName(), book.getCondition(),
+        book.getDescription(),
+        book.getForExchange(), book.getForGiveAway(), book.getListedBy().getUsername(),
+        book.getStatus());
+  }
 
-	@Override
-	public Book mappedEntity() {
-		Book book = new Book();
-		book.setIsbn(isbn);
-		book.setName(name);
-		book.setCondition(condition);
-		book.setDescription(description);
-		book.setForExchange(forExchange);
-		book.setForGiveAway(forGiveAway);
-		return book;
-	}
+  @Override
+  public Book mappedEntity() {
+    Book book = new Book();
+    book.setIsbn(isbn);
+    book.setName(name);
+    book.setCondition(condition);
+    book.setDescription(description);
+    book.setForExchange(forExchange);
+    book.setForGiveAway(forGiveAway);
+    return book;
+  }
 
 }

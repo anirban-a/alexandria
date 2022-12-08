@@ -1,26 +1,25 @@
 package com.rpi.alexandria.model;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
+import java.util.List;
 import lombok.Data;
 import lombok.ToString;
-
-import java.util.List;
 
 @Data
 @ToString
 @Container(containerName = "university")
 public class University {
 
-	String id;
+  String id;
 
-	String name;
+  String name;
 
-	List<String> domains;
+  List<String> domains;
 
-	String country;
+  String country;
 
-	public String computeId() {
-		return String.join("_", name.toLowerCase().split(" "));
-	}
+  public String computeId() {
+    return String.join("_", name.toLowerCase().split(" "));
+  }
 
 }

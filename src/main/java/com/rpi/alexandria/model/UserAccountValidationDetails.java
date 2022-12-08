@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserAccountValidationDetails {
 
-	private String email;
+  private String email;
 
-	private String validationCode;
+  private String validationCode;
 
 }

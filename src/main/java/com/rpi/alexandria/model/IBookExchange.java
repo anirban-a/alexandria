@@ -2,8 +2,8 @@ package com.rpi.alexandria.model;
 
 public interface IBookExchange extends IBookDonation {
 
-	String getOtherPartyId();
+  String getOtherPartyId();
 
-	String getOtherPartyBookId();
+  String getOtherPartyBookId();
 
 }

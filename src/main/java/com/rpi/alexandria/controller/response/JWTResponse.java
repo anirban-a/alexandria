@@ -12,12 +12,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JWTResponse {
 
-	String jwt;
+  String jwt;
 
-	String firstName;
+  String firstName;
 
-	String lastName;
+  String lastName;
 
-	String email;
+  String email;
 
 }

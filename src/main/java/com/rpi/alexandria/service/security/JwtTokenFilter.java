@@ -1,13 +1,15 @@
 package com.rpi.alexandria.service.security;
 
-import com.rpi.alexandria.exception.ApplicationException;
 import com.rpi.alexandria.repository.UserRepository;
 import com.rpi.alexandria.service.UserService;
+import java.io.IOException;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,59 +18,55 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 @Component
 @Slf4j
 @AllArgsConstructor
 // @Order(Ordered.HIGHEST_PRECEDENCE)
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-	private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-	private final JwtService jwtService;
+  private final JwtService jwtService;
 
-	private final UserService userService;
+  private final UserService userService;
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		response.setHeader("Access-Control-Allow-Methods", "*");
-		response.setHeader("Access-Control-Allow-Headers", "*");
-		response.setHeader("Access-Control-Allow-Credentials", "*");
-		response.setHeader("Access-Control-Max-Age", "3600");
-		// Get authorization header and validate
-		log.info("Request received: {}", request.getRequestURL());
-		final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-		if (StringUtils.isEmpty(header) || !header.startsWith("Bearer ")) {
-			filterChain.doFilter(request, response);
-			return;
-		}
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain filterChain)
+      throws ServletException, IOException {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    response.setHeader("Access-Control-Allow-Methods", "*");
+    response.setHeader("Access-Control-Allow-Headers", "*");
+    response.setHeader("Access-Control-Allow-Credentials", "*");
+    response.setHeader("Access-Control-Max-Age", "3600");
+    // Get authorization header and validate
+    log.info("Request received: {}", request.getRequestURL());
+    final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.isEmpty(header) || !header.startsWith("Bearer ")) {
+      filterChain.doFilter(request, response);
+      return;
+    }
 
-		// Get jwt token and validate
-		final String token = header.split(" ")[1].trim();
+    // Get jwt token and validate
+    final String token = header.split(" ")[1].trim();
 
-		String[] chunks = token.split("\\.");
+    String[] chunks = token.split("\\.");
 
-		if (!jwtService.validate(token)) {
-			throw new RuntimeException("Could not verify JWT token integrity!");
-		}
+    if (!jwtService.validate(token)) {
+      throw new RuntimeException("Could not verify JWT token integrity!");
+    }
 
-		UserDetails userDetails = userService.loadUserByUsername(jwtService.getUsername(token));
-		log.info("UserDetails loaded");
+    UserDetails userDetails = userService.loadUserByUsername(jwtService.getUsername(token));
+    log.info("UserDetails loaded");
 
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-				userDetails.getAuthorities());
+    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+        userDetails, null,
+        userDetails.getAuthorities());
 
-		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		filterChain.doFilter(request, response);
-	}
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    filterChain.doFilter(request, response);
+  }
 
 }
