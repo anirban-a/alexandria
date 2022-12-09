@@ -5,13 +5,13 @@ import lombok.Data;
 @Data
 public class RatingDTO {
 
-	String usernameOther;
+  String usernameOther;
 
-	int ratingValue;
+  int ratingValue;
 
-	public RatingDTO(String usernameOther, int ratingValue) {
-		this.usernameOther = usernameOther;
-		this.ratingValue = ratingValue;
-	}
+  public RatingDTO(String usernameOther, int ratingValue) {
+    this.usernameOther = usernameOther;
+    this.ratingValue = ratingValue;
+  }
 
 }

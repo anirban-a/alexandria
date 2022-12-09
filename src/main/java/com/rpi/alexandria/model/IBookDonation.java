@@ -2,8 +2,8 @@ package com.rpi.alexandria.model;
 
 public interface IBookDonation extends Transactable {
 
-	String getFirstPartyId();
+  String getFirstPartyId();
 
-	String getFirstPartyBookId();
+  String getFirstPartyBookId();
 
 }

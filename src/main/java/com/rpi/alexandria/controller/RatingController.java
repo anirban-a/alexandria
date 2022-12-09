@@ -6,15 +6,25 @@ import com.rpi.alexandria.dto.RatingDTO;
 import com.rpi.alexandria.model.Rating;
 import com.rpi.alexandria.model.User;
 import com.rpi.alexandria.service.UserService;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.OffsetDateTime;
-import java.util.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/rating")
@@ -23,170 +33,186 @@ import java.util.*;
 @CrossOrigin("http://localhost:${ui.port}")
 public class RatingController extends BaseController {
 
-	public RatingController(UserService userService) {
-		super(userService);
-	}
+  public RatingController(UserService userService) {
+    super(userService);
+  }
 
-	@PostMapping("/")
-	public ResponseEntity<AppResponse> addRating(@RequestBody Rating rating) {
-		log.info("Received request to add rating to user: {}", rating.getUsernameOther());
+  @PostMapping("/")
+  public ResponseEntity<AppResponse> addRating(@RequestBody Rating rating) {
+    log.info("Received request to add rating to user: {}", rating.getUsernameOther());
 
-		int ratingValue = rating.getRatingValue();
+    int ratingValue = rating.getRatingValue();
 
-		// Cannot add rating with value less than 1 or greater than 5
-		if (ratingValue < 1 || ratingValue > 5) {
-			AppResponse appResponse = new AppResponse(
-					String.format("Invalid rating value %d. Allowed rating values are integer values from 1 to 5.",
-							ratingValue),
-					OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot add rating with value less than 1 or greater than 5
+    if (ratingValue < 1 || ratingValue > 5) {
+      AppResponse appResponse = new AppResponse(
+          String.format(
+              "Invalid rating value %d. Allowed rating values are integer values from 1 to 5.",
+              ratingValue),
+          OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		User loggedInUser = getUser();
-		String loggedInUserUsername = loggedInUser.getUsername();
+    User loggedInUser = getUser();
+    String loggedInUserUsername = loggedInUser.getUsername();
 
-		// Cannot add rating to same account
-		if (loggedInUserUsername.equals(rating.getUsernameOther())) {
-			AppResponse appResponse = new AppResponse("Cannot add rating to same account", OffsetDateTime.now(),
-					HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot add rating to same account
+    if (loggedInUserUsername.equals(rating.getUsernameOther())) {
+      AppResponse appResponse = new AppResponse("Cannot add rating to same account",
+          OffsetDateTime.now(),
+          HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		// Cannot add more than one rating to same user
-		if (userService.hasAddedRating(loggedInUser, rating)) {
-			AppResponse appResponse = new AppResponse(
-					String.format("%s has already added rating to %s", loggedInUserUsername, rating.getUsernameOther()),
-					OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot add more than one rating to same user
+    if (userService.hasAddedRating(loggedInUser, rating)) {
+      AppResponse appResponse = new AppResponse(
+          String.format("%s has already added rating to %s", loggedInUserUsername,
+              rating.getUsernameOther()),
+          OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		userService.addRating(loggedInUser, rating);
+    userService.addRating(loggedInUser, rating);
 
-		AppResponse appResponse = buildAppResponse(String.format("%s successfully added rating of %d to %s",
-				loggedInUserUsername, rating.getRatingValue(), rating.getUsernameOther()), HttpStatus.OK);
-		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-	}
+    AppResponse appResponse = buildAppResponse(
+        String.format("%s successfully added rating of %d to %s",
+            loggedInUserUsername, rating.getRatingValue(), rating.getUsernameOther()),
+        HttpStatus.OK);
+    return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+  }
 
-	@PutMapping("/")
-	public ResponseEntity<AppResponse> updateRating(@RequestBody Rating rating) {
-		log.info("Received request to update rating of user: {}", rating.getUsernameOther());
+  @PutMapping("/")
+  public ResponseEntity<AppResponse> updateRating(@RequestBody Rating rating) {
+    log.info("Received request to update rating of user: {}", rating.getUsernameOther());
 
-		int ratingValue = rating.getRatingValue();
+    int ratingValue = rating.getRatingValue();
 
-		// Cannot update rating with value less than 1 or greater than 5
-		if (ratingValue < 1 || ratingValue > 5) {
-			AppResponse appResponse = new AppResponse(
-					String.format("Invalid rating value %d. Allowed rating values are integer values from 1 to 5.",
-							ratingValue),
-					OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot update rating with value less than 1 or greater than 5
+    if (ratingValue < 1 || ratingValue > 5) {
+      AppResponse appResponse = new AppResponse(
+          String.format(
+              "Invalid rating value %d. Allowed rating values are integer values from 1 to 5.",
+              ratingValue),
+          OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		User loggedInUser = getUser();
-		String loggedInUserUsername = loggedInUser.getUsername();
+    User loggedInUser = getUser();
+    String loggedInUserUsername = loggedInUser.getUsername();
 
-		// Cannot update rating to same account
-		if (loggedInUserUsername.equals(rating.getUsernameOther())) {
-			AppResponse appResponse = new AppResponse("Cannot update rating to same account", OffsetDateTime.now(),
-					HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot update rating to same account
+    if (loggedInUserUsername.equals(rating.getUsernameOther())) {
+      AppResponse appResponse = new AppResponse("Cannot update rating to same account",
+          OffsetDateTime.now(),
+          HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		// Cannot update rating if no rating has been created
-		if (!userService.hasAddedRating(loggedInUser, rating)) {
-			AppResponse appResponse = new AppResponse(
-					String.format("%s has not added rating to %s, so cannot update the rating", loggedInUserUsername,
-							rating.getUsernameOther()),
-					OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot update rating if no rating has been created
+    if (!userService.hasAddedRating(loggedInUser, rating)) {
+      AppResponse appResponse = new AppResponse(
+          String.format("%s has not added rating to %s, so cannot update the rating",
+              loggedInUserUsername,
+              rating.getUsernameOther()),
+          OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		userService.updateRating(loggedInUserUsername, rating);
-		AppResponse appResponse = buildAppResponse(String.format("%s successfully updated rating to %d for %s",
-				loggedInUserUsername, rating.getRatingValue(), rating.getUsernameOther()), HttpStatus.OK);
-		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-	}
+    userService.updateRating(loggedInUserUsername, rating);
+    AppResponse appResponse = buildAppResponse(
+        String.format("%s successfully updated rating to %d for %s",
+            loggedInUserUsername, rating.getRatingValue(), rating.getUsernameOther()),
+        HttpStatus.OK);
+    return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+  }
 
-	@GetMapping("/average")
-	public ResponseEntity<AppResponse> getAverage(@RequestBody Rating rating) {
-		log.info("Received request to get average rating of user: {}", rating.getUsernameOther());
+  @GetMapping("/average")
+  public ResponseEntity<AppResponse> getAverage(@RequestBody Rating rating) {
+    log.info("Received request to get average rating of user: {}", rating.getUsernameOther());
 
-		double averageRating = userService.getAverageRating(rating);
-		JSONObject averageRatingsJSON = new JSONObject();
-		averageRatingsJSON.put("averageRating", averageRating);
+    double averageRating = userService.getAverageRating(rating);
+    JSONObject averageRatingsJSON = new JSONObject();
+    averageRatingsJSON.put("averageRating", averageRating);
 
-		AppResponse appResponse = new AppResponse<>(
-				String.format("Retrieved average rating of user with username %s", rating.getUsernameOther()),
-				OffsetDateTime.now(), HttpStatus.OK, "", averageRatingsJSON);
-		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-	}
+    AppResponse appResponse = new AppResponse<>(
+        String.format("Retrieved average rating of user with username %s",
+            rating.getUsernameOther()),
+        OffsetDateTime.now(), HttpStatus.OK, "", averageRatingsJSON);
+    return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+  }
 
-	@GetMapping("/ratings")
-	public ResponseEntity<AppResponse> getRatings(@RequestBody Rating rating) {
-		log.info("Received request to get ratings from user: {}", rating.getUsernameOther());
-		Map<String, Integer> ratings = userService.getRatings(rating);
+  @GetMapping("/ratings")
+  public ResponseEntity<AppResponse> getRatings(@RequestBody Rating rating) {
+    log.info("Received request to get ratings from user: {}", rating.getUsernameOther());
+    Map<String, Integer> ratings = userService.getRatings(rating);
 
-		List<RatingDTO> ratingDTOList = new ArrayList<>();
-		Iterator<Map.Entry<String, Integer>> ratingsItr = ratings.entrySet().iterator();
-		while (ratingsItr.hasNext()) {
-			Map.Entry ratingsInfo = ratingsItr.next();
-			ratingDTOList.add(new RatingDTO((String) ratingsInfo.getKey(), (int) ratingsInfo.getValue()));
-		}
+    List<RatingDTO> ratingDTOList = new ArrayList<>();
+    Iterator<Map.Entry<String, Integer>> ratingsItr = ratings.entrySet().iterator();
+    while (ratingsItr.hasNext()) {
+      Map.Entry ratingsInfo = ratingsItr.next();
+      ratingDTOList.add(new RatingDTO((String) ratingsInfo.getKey(), (int) ratingsInfo.getValue()));
+    }
 
-		AppResponse<List<RatingDTO>> appResponse = new AppResponse<>(
-				String.format("Retrieved ratings of user with username %s", rating.getUsernameOther()),
-				OffsetDateTime.now(), HttpStatus.OK, "", ratingDTOList);
-		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-	}
+    AppResponse<List<RatingDTO>> appResponse = new AppResponse<>(
+        String.format("Retrieved ratings of user with username %s", rating.getUsernameOther()),
+        OffsetDateTime.now(), HttpStatus.OK, "", ratingDTOList);
+    return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+  }
 
-	@GetMapping("/rated")
-	public ResponseEntity<AppResponse> getUsernamesRated() {
-		User loggedInUser = getUser();
-		log.info("Received request to get usernames that user: {} has rated", loggedInUser.getUsername());
+  @GetMapping("/rated")
+  public ResponseEntity<AppResponse> getUsernamesRated() {
+    User loggedInUser = getUser();
+    log.info("Received request to get usernames that user: {} has rated",
+        loggedInUser.getUsername());
 
-		Set<String> usernamesRated = userService.getUsernamesRated(loggedInUser);
+    Set<String> usernamesRated = userService.getUsernamesRated(loggedInUser);
 
-		List<String> usernamesRatedList = new ArrayList<>();
-		Iterator<String> usernamesRatedItr = usernamesRated.iterator();
-		while (usernamesRatedItr.hasNext()) {
-			String usernameRated = usernamesRatedItr.next();
-			usernamesRatedList.add(usernameRated);
-		}
+    List<String> usernamesRatedList = new ArrayList<>();
+    Iterator<String> usernamesRatedItr = usernamesRated.iterator();
+    while (usernamesRatedItr.hasNext()) {
+      String usernameRated = usernamesRatedItr.next();
+      usernamesRatedList.add(usernameRated);
+    }
 
-		AppResponse<List<String>> appResponse = new AppResponse<>(
-				String.format("Retrieved usernames that %s rated", loggedInUser.getUsername()), OffsetDateTime.now(),
-				HttpStatus.OK, "", usernamesRatedList);
-		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-	}
+    AppResponse<List<String>> appResponse = new AppResponse<>(
+        String.format("Retrieved usernames that %s rated", loggedInUser.getUsername()),
+        OffsetDateTime.now(),
+        HttpStatus.OK, "", usernamesRatedList);
+    return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+  }
 
-	@DeleteMapping("/")
-	public ResponseEntity<AppResponse> deleteRating(@RequestBody Rating rating) {
-		log.info("Received request to remove rating from user: {}", rating.getUsernameOther());
+  @DeleteMapping("/")
+  public ResponseEntity<AppResponse> deleteRating(@RequestBody Rating rating) {
+    log.info("Received request to remove rating from user: {}", rating.getUsernameOther());
 
-		User loggedInUser = getUser();
-		String loggedInUserUsername = loggedInUser.getUsername();
+    User loggedInUser = getUser();
+    String loggedInUserUsername = loggedInUser.getUsername();
 
-		// Cannot delete rating to same account
-		if (loggedInUserUsername.equals(rating.getUsernameOther())) {
-			AppResponse appResponse = new AppResponse("Cannot delete rating to same account", OffsetDateTime.now(),
-					HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot delete rating to same account
+    if (loggedInUserUsername.equals(rating.getUsernameOther())) {
+      AppResponse appResponse = new AppResponse("Cannot delete rating to same account",
+          OffsetDateTime.now(),
+          HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		// Cannot delete rating if no rating has been created
-		if (!userService.hasAddedRating(loggedInUser, rating)) {
-			AppResponse appResponse = new AppResponse(
-					String.format("%s has not added rating to %s, so cannot delete the rating", loggedInUserUsername,
-							rating.getUsernameOther()),
-					OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
-			return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-		}
+    // Cannot delete rating if no rating has been created
+    if (!userService.hasAddedRating(loggedInUser, rating)) {
+      AppResponse appResponse = new AppResponse(
+          String.format("%s has not added rating to %s, so cannot delete the rating",
+              loggedInUserUsername,
+              rating.getUsernameOther()),
+          OffsetDateTime.now(), HttpStatus.BAD_REQUEST, "", null);
+      return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+    }
 
-		userService.deleteRating(loggedInUser, rating);
-		AppResponse appResponse = buildAppResponse(
-				String.format("%s successfully deleted rating for %s", loggedInUserUsername, rating.getUsernameOther()),
-				HttpStatus.OK);
-		return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
-	}
+    userService.deleteRating(loggedInUser, rating);
+    AppResponse appResponse = buildAppResponse(
+        String.format("%s successfully deleted rating for %s", loggedInUserUsername,
+            rating.getUsernameOther()),
+        HttpStatus.OK);
+    return new ResponseEntity<>(appResponse, appResponse.getHttpStatus());
+  }
 
 }

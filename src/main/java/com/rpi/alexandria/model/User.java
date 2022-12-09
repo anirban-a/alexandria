@@ -2,6 +2,11 @@ package com.rpi.alexandria.model;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
 import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,8 +15,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.util.*;
-
 @Container(containerName = "user")
 @Data
 @NoArgsConstructor
@@ -19,76 +22,77 @@ import java.util.*;
 @ToString
 public class User {
 
-	@Id
-	@PartitionKey
-	@Field(type = FieldType.Keyword)
-	private String username;
+  @Id
+  @PartitionKey
+  @Field(type = FieldType.Keyword)
+  private String username;
 
-	private String firstName;
+  private String firstName;
 
-	private String lastName;
+  private String lastName;
 
-	private String address;
+  private String address;
 
-	private String primaryEmail;
+  private String primaryEmail;
 
-	private String secondaryEmail;
+  private String secondaryEmail;
 
-	private University university;
+  private University university;
 
-	private String password;
+  private String password;
 
-	private String passwordResetToken;
+  private String passwordResetToken;
 
-	private Boolean isVerified;
+  private Boolean isVerified;
 
-	private Boolean isAccountActive;
+  private Boolean isAccountActive;
 
-	private Map<String, Integer> ratings = new HashMap<>(); // key: username of user that
-															// provided rating, value:
-															// rating value
+  private Map<String, Integer> ratings = new HashMap<>(); // key: username of user that
+  // provided rating, value:
+  // rating value
 
-	private Set<String> usernamesRated = new HashSet<>();
+  private Set<String> usernamesRated = new HashSet<>();
 
-	public boolean hasRated(String usernameOther) {
-		return usernamesRated.contains(usernameOther);
-	}
+  public boolean hasRated(String usernameOther) {
+    return usernamesRated.contains(usernameOther);
+  }
 
-	public void addRating(String usernameOther, int ratingValue) {
-		ratings.put(usernameOther, ratingValue);
-	}
+  public void addRating(String usernameOther, int ratingValue) {
+    ratings.put(usernameOther, ratingValue);
+  }
 
-	public void addUsernameToUsernamesRated(String username) {
-		usernamesRated.add(username);
-	}
+  public void addUsernameToUsernamesRated(String username) {
+    usernamesRated.add(username);
+  }
 
-	public void updateRating(String usernameOther, int ratingValue) {
-		ratings.put(usernameOther, ratingValue);
-	}
+  public void updateRating(String usernameOther, int ratingValue) {
+    ratings.put(usernameOther, ratingValue);
+  }
 
-	public void deleteRating(String usernameOther) {
-		ratings.remove(usernameOther);
-	}
+  public void deleteRating(String usernameOther) {
+    ratings.remove(usernameOther);
+  }
 
-	public void removeUsernameFromUsernamesRated(String username) {
-		usernamesRated.remove(username);
-	}
+  public void removeUsernameFromUsernamesRated(String username) {
+    usernamesRated.remove(username);
+  }
 
-	public double getAverageRating() {
-		int count = 0;
-		double total = 0.0;
+  public double getAverageRating() {
+    int count = 0;
+    double total = 0.0;
 
-		Iterator<Map.Entry<String, Integer>> ratingsItr = ratings.entrySet().iterator();
+    Iterator<Map.Entry<String, Integer>> ratingsItr = ratings.entrySet().iterator();
 
-		while (ratingsItr.hasNext()) {
-			count++;
-			total += ratingsItr.next().getValue();
-		}
+    while (ratingsItr.hasNext()) {
+      count++;
+      total += ratingsItr.next().getValue();
+    }
 
-		if (count == 0)
-			return 0.0;
+    if (count == 0) {
+      return 0.0;
+    }
 
-		return total / count;
-	}
+    return total / count;
+  }
 
 }

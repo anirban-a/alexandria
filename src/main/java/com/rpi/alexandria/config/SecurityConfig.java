@@ -3,6 +3,7 @@ package com.rpi.alexandria.config;
 import com.rpi.alexandria.repository.UserRepository;
 import com.rpi.alexandria.service.UserService;
 import com.rpi.alexandria.service.security.JwtTokenFilter;
+import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -13,68 +14,66 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
-import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 @AllArgsConstructor
 @Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-	private final JwtTokenFilter jwtTokenFilter;
+  private final JwtTokenFilter jwtTokenFilter;
 
-	private final UserService userService;
+  private final UserService userService;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.cors();
-		http = http.csrf().disable();
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.cors();
+    http = http.csrf().disable();
 
-		http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
+    http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
 
-		// Set unauthorized requests exception handler
-		http = http.exceptionHandling().authenticationEntryPoint((request, response, ex) -> {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
-		}).and();
+    // Set unauthorized requests exception handler
+    http = http.exceptionHandling().authenticationEntryPoint((request, response, ex) -> {
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+    }).and();
 
-		http.authorizeHttpRequests().antMatchers("/api/login").permitAll().antMatchers("/api/signup").permitAll()
-				.antMatchers("/api/universities").permitAll().antMatchers("/api/passwordReset").permitAll()
-				.antMatchers("/api/changePassword").permitAll().antMatchers("/api/verifyUser").permitAll()
-				.antMatchers("/email/sendMail").permitAll().antMatchers("/email/test").permitAll().anyRequest()
-				.authenticated();
+    http.authorizeHttpRequests().antMatchers("/api/login").permitAll().antMatchers("/api/signup")
+        .permitAll()
+        .antMatchers("/api/universities").permitAll().antMatchers("/api/passwordReset").permitAll()
+        .antMatchers("/api/changePassword").permitAll().antMatchers("/api/verifyUser").permitAll()
+        .antMatchers("/email/sendMail").permitAll().antMatchers("/email/test").permitAll()
+        .anyRequest()
+        .authenticated();
 
-		// Add JWT token filter
-		http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+    // Add JWT token filter
+    http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
-	}
+  }
 
-	// Used by spring security if CORS is enabled.
-	// @Bean
-	// public CorsFilter corsFilter() {
-	// UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	// CorsConfiguration config = new CorsConfiguration();
-	// config.setAllowCredentials(true);
-	// config.addAllowedOrigin("*");
-	// config.addAllowedHeader("*");
-	// config.addAllowedMethod("*");
-	// source.registerCorsConfiguration("/", config);
-	// return new CorsFilter(source);
-	// }
+  // Used by spring security if CORS is enabled.
+  // @Bean
+  // public CorsFilter corsFilter() {
+  // UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+  // CorsConfiguration config = new CorsConfiguration();
+  // config.setAllowCredentials(true);
+  // config.addAllowedOrigin("*");
+  // config.addAllowedHeader("*");
+  // config.addAllowedMethod("*");
+  // source.registerCorsConfiguration("/", config);
+  // return new CorsFilter(source);
+  // }
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		authenticationManagerBuilder.userDetailsService(userService::loadUserByUsername);
-	}
+  @Override
+  protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder)
+      throws Exception {
+    authenticationManagerBuilder.userDetailsService(userService::loadUserByUsername);
+  }
 
-	@Override
-	@Bean
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-	}
+  @Override
+  @Bean
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+  }
 
 }

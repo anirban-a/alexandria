@@ -2,12 +2,12 @@ package com.rpi.alexandria.model;
 
 public interface INotification {
 
-	void setRecipient(String recipient);
+  String getRecipient();
 
-	String getRecipient();
+  void setRecipient(String recipient);
 
-	void setMessage(String message);
+  String getMessage();
 
-	String getMessage();
+  void setMessage(String message);
 
 }

@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Email implements IEmailNotification {
 
-	private String recipient;
+  private String recipient;
 
-	private String message;
+  private String message;
 
-	private String subject;
+  private String subject;
 
 }

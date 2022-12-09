@@ -1,10 +1,13 @@
 package com.rpi.alexandria.controller.response;
 
-import lombok.*;
+import java.time.OffsetDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
-
-import java.time.OffsetDateTime;
 
 @AllArgsConstructor
 @Builder
@@ -13,14 +16,14 @@ import java.time.OffsetDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AppResponse<T> {
 
-	String message;
+  String message;
 
-	OffsetDateTime dateTime;
+  OffsetDateTime dateTime;
 
-	HttpStatus httpStatus;
+  HttpStatus httpStatus;
 
-	String description;
+  String description;
 
-	T data;
+  T data;
 
 }
